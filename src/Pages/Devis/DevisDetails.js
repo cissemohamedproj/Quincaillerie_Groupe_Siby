@@ -135,7 +135,7 @@ export default function DevisDetails() {
                 style={{
                   boxShadow: '0px 0px 10px rgba(100, 169, 238, 0.5)',
                   borderRadius: '15px',
-                  width: '583px',
+                  width: '560px',
                   margin: '5px auto',
                   position: 'relative',
                 }}

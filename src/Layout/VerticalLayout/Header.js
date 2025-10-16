@@ -14,9 +14,12 @@ import {
 import ProfileMenu from '../../components/Common/TopbarDropdown/ProfileMenu';
 import {
   companyLittleName,
-  companyLogo,
   companyOwnerName,
+  companyServices1,
+  companyServices2,
+  companySmallLogo,
 } from '../../Pages/CompanyInfo/CompanyInfo';
+import { capitalizeWords } from '../../Pages/components/capitalizeFunction';
 
 const Header = (props) => {
   function toggleFullscreen() {
@@ -62,44 +65,43 @@ const Header = (props) => {
         <div className='navbar-header'>
           <div className='d-flex'>
             <div
-              className='navbar-brand-box text-center pt-5 mb-4'
+              className='navbar-brand-box text-center'
               style={{ backgroundColor: ' #F7F4EA' }}
             >
               <span>
                 <img
-                  src={companyLogo}
+                  src={companySmallLogo}
                   style={{
-                    width: '60px',
-                    // marginBottom: '10px',
+                    width: '100px',
                   }}
                   alt='logo'
                 />
-                <h5 className='text-info'>{companyLittleName}</h5>
               </span>
             </div>
 
             <button
               type='button'
-              className='btn btn-sm px-3 font-size-24 header-item waves-effect  d-flex justify-content-center bg-info text-white align-self-center mx-3 pt-3'
+              className='btn btn-sm px-3 font-size-24 header-item waves-effect  d-flex justify-content-center text-white align-self-center mx-3 pt-3'
               id='vertical-menu-btn'
               onClick={() => {
                 tToggle();
               }}
             >
-              <i className='ri-menu-2-line align-middle'></i>
+              <i className='dripicons-align-left align-middle text-info'></i>
             </button>
-
-            <p
-              className='d-flex justify-content-center align-items-center fw-bold font-size-16'
-              style={{
-                color: ' #27548A',
-              }}
-            >
+          </div>
+          <div className='d-none d-md-flex flex-column  align-items-center justify-content-center'>
+            <p className='fw-bold font-size-16 text-info my-1'>
               {companyLittleName} |
               <span className=' ms-2 text-warning'> {companyOwnerName}</span>
             </p>
+            <p className='my-0 font-size-10 text-dark'>
+              {capitalizeWords(companyServices2)}{' '}
+            </p>
+            <p className='my-0 font-size-10 text-dark'>
+              {capitalizeWords(companyServices1)}{' '}
+            </p>
           </div>
-
           <div className='d-flex'>
             <div className='dropdown d-none d-lg-inline-block ms-1'>
               <button

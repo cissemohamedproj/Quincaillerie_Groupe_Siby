@@ -174,7 +174,7 @@ export default function FactureListe() {
                     style={{
                       boxShadow: '0px 0px 10px rgba(100, 169, 238, 0.5)',
                       borderRadius: '15px',
-                      width: '583px',
+                      width: '560px',
                       margin: '20px auto',
                       position: 'relative',
                     }}
