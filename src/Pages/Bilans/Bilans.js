@@ -56,7 +56,8 @@ export default function Bilans() {
     return (
       (isBetweenDates(item.commande?.commandeDate) &&
         selectedBoutique === null) ||
-      Number(item.user?.boutique) === selectedBoutique
+      (isBetweenDates(item.commande?.commandeDate) &&
+        Number(item.user?.boutique) === selectedBoutique)
     );
   });
 
@@ -65,7 +66,8 @@ export default function Bilans() {
     // Filtrer par date
     return (
       (isBetweenDates(item?.dateOfDepense) && selectedBoutique === null) ||
-      Number(item?.user?.boutique) === selectedBoutique
+      (isBetweenDates(item?.dateOfDepense) &&
+        Number(item?.user?.boutique) === selectedBoutique)
     );
   });
 
@@ -90,14 +92,14 @@ export default function Bilans() {
     }
 
     // On filtre d'abord les paiements par date sélectionnée
-    const paiementsFiltres = paiementsData?.filter((item) => {
-      return isBetweenDates(item?.paiementDate);
-    });
+    // const paiementsFiltres = filterPaiement?.filter((item) => {
+    //   return isBetweenDates(item?.paiementDate);
+    // });
 
     // let totalCA = 0; // chiffre d’affaires
     let totalAchat = 0; // coût d’achat
 
-    paiementsFiltres?.forEach((paiement) => {
+    filterPaiement?.forEach((paiement) => {
       paiement.commande?.items.forEach((item) => {
         const produit = item?.produit;
         if (!produit) return;
@@ -111,13 +113,13 @@ export default function Bilans() {
     const benefice = total - sumTotalDepense;
 
     return { totalAchat, benefice };
-  }, [paiementsData, isBetweenDates, sumTotalPaye, sumTotalDepense]);
+  }, [paiementsData, sumTotalPaye, sumTotalDepense, filterPaiement]);
 
   return (
     <React.Fragment>
       <div className='page-content'>
         <Container fluid>
-          <Breadcrumbs title='Rapport' breadcrumbItem='Bilans de Semaine' />
+          <Breadcrumbs title='Rapport' breadcrumbItem='Bilans' />
 
           <Row>
             <Col lg={12}>
@@ -154,37 +156,38 @@ export default function Bilans() {
                           <h6 className=''>
                             Commande Entregistrées:{' '}
                             <span className='text-info'>
-                              {formatPrice(totalCommandeNumber)}
+                              {formatPrice(totalCommandeNumber || 0)}
                             </span>
                           </h6>
                           <h6 className=''>
                             Chiffre d'Affaire:{' '}
                             <span className='text-info'>
-                              {formatPrice(sumTotalAmount)} F{' '}
+                              {formatPrice(sumTotalAmount || 0)} F{' '}
                             </span>
                           </h6>
                           <h6 className=''>
                             Revenu Obtenu:{' '}
                             <span className='text-success'>
-                              {formatPrice(sumTotalPaye)} F{' '}
+                              {formatPrice(sumTotalPaye || 0)} F{' '}
                             </span>
                           </h6>
                           <h6 className=''>
                             Total Achats :{' '}
                             <span className='text-success'>
-                              {formatPrice(totalAchat)} F{' '}
+                              {formatPrice(totalAchat || 0)} F{' '}
                             </span>
                           </h6>
                           <h6 className=''>
                             Réliquat:{' '}
                             <span className='text-danger'>
-                              {formatPrice(sumTotalAmount - sumTotalPaye)} F{' '}
+                              {formatPrice(sumTotalAmount - sumTotalPaye || 0)}{' '}
+                              F{' '}
                             </span>
                           </h6>
                           <h6 className=''>
                             Depenses:{' '}
                             <span className='text-danger'>
-                              {formatPrice(sumTotalDepense)} F{' '}
+                              {formatPrice(sumTotalDepense || 0)} F{' '}
                             </span>
                           </h6>
                           <h6 className=''>
@@ -194,7 +197,7 @@ export default function Bilans() {
                                 benefice > 0 ? 'text-primary' : 'text-danger'
                               }`}
                             >
-                              {formatPrice(benefice)} F{' '}
+                              {formatPrice(benefice || 0)} F{' '}
                             </span>
                           </h6>
                         </div>
@@ -319,100 +322,105 @@ export default function Bilans() {
 
                         <tbody className='list form-check-all text-center'>
                           {filterPaiement?.length > 0 &&
-                            filterPaiement?.map((paiement) => (
-                              <tr key={paiement?._id}>
-                                <th scope='row'>
-                                  {new Date(
-                                    paiement?.commande?.commandeDate
-                                  ).toLocaleDateString()}
-                                </th>
-                                <td
-                                  className=' text-start'
-                                  style={{ width: '400px' }}
-                                >
-                                  {paiement?.commande?.items?.map(
-                                    (it, index) => (
-                                      <p key={index} className='d-block'>
-                                        {it?.produit?.name}
-                                      </p>
-                                    )
-                                  )}
-                                </td>
-                                <td>
-                                  {paiement?.commande?.items?.map(
-                                    (it, index) => (
-                                      <p key={index} className='d-block'>
-                                        {formatPrice(it?.quantity)}
-                                      </p>
-                                    )
-                                  )}
-                                </td>
-                                <td>
-                                  {paiement?.commande?.items?.map(
-                                    (it, index) => (
-                                      <p key={index} className='d-block'>
+                            filterPaiement?.map((paiement) => {
+                              return (
+                                <tr key={paiement?._id}>
+                                  <th scope='row'>
+                                    {new Date(
+                                      paiement?.commande?.commandeDate
+                                    ).toLocaleDateString()}
+                                  </th>
+                                  <td
+                                    className=' text-start'
+                                    style={{ width: '400px' }}
+                                  >
+                                    {paiement?.commande?.items?.map(
+                                      (it, index) => (
+                                        <p key={index} className='d-block'>
+                                          {it?.produit?.name}
+                                        </p>
+                                      )
+                                    )}
+                                  </td>
+                                  <td>
+                                    {paiement?.commande?.items?.map(
+                                      (it, index) => (
+                                        <p key={index} className='d-block'>
+                                          {formatPrice(it?.quantity)}
+                                        </p>
+                                      )
+                                    )}
+                                  </td>
+                                  <td>
+                                    {paiement?.commande?.items?.map(
+                                      (it, index) => (
+                                        <p key={index} className='d-block'>
+                                          {formatPrice(
+                                            it?.customerPrice * it?.quantity
+                                          )}
+                                          {' F '}
+                                        </p>
+                                      )
+                                    )}
+                                  </td>
+
+                                  <td>
+                                    {capitalizeWords(
+                                      paiement?.commande?.fullName
+                                    )}
+                                  </td>
+                                  <td>
+                                    {formatPhoneNumber(
+                                      paiement?.commande?.phoneNumber
+                                    ) || '----'}
+                                  </td>
+                                  <td>
+                                    {capitalizeWords(
+                                      paiement?.commande?.adresse
+                                    )}
+                                  </td>
+
+                                  <td>
+                                    {formatPrice(paiement?.totalAmount)}
+                                    {' F '}
+                                  </td>
+                                  <td className='text-warning'>
+                                    {formatPrice(paiement?.reduction)} F
+                                  </td>
+                                  <td>
+                                    {formatPrice(paiement?.totalPaye)}
+                                    {' F '}
+                                  </td>
+                                  <td>
+                                    {paiement?.totalAmount -
+                                      paiement?.totalPaye >
+                                    0 ? (
+                                      <span className='text-danger'>
+                                        {' '}
                                         {formatPrice(
-                                          it?.customerPrice * it?.quantity
+                                          paiement?.totalAmount -
+                                            paiement?.totalPaye
                                         )}
                                         {' F '}
-                                      </p>
-                                    )
-                                  )}
-                                </td>
+                                      </span>
+                                    ) : (
+                                      <span>
+                                        {' '}
+                                        {formatPrice(
+                                          paiement?.totalAmount -
+                                            paiement?.totalPaye
+                                        )}
+                                        {' F '}
+                                      </span>
+                                    )}
+                                  </td>
 
-                                <td>
-                                  {capitalizeWords(
-                                    paiement?.commande?.fullName
-                                  )}
-                                </td>
-                                <td>
-                                  {formatPhoneNumber(
-                                    paiement?.commande?.phoneNumber
-                                  ) || '----'}
-                                </td>
-                                <td>
-                                  {capitalizeWords(paiement?.commande?.adresse)}
-                                </td>
-
-                                <td>
-                                  {formatPrice(paiement?.totalAmount)}
-                                  {' F '}
-                                </td>
-                                <td className='text-warning'>
-                                  {formatPrice(paiement?.reduction)} F
-                                </td>
-                                <td>
-                                  {formatPrice(paiement?.totalPaye)}
-                                  {' F '}
-                                </td>
-                                <td>
-                                  {paiement?.totalAmount - paiement?.totalPaye >
-                                  0 ? (
-                                    <span className='text-danger'>
-                                      {' '}
-                                      {formatPrice(
-                                        paiement?.totalAmount -
-                                          paiement?.totalPaye
-                                      )}
-                                      {' F '}
-                                    </span>
-                                  ) : (
-                                    <span>
-                                      {' '}
-                                      {formatPrice(
-                                        paiement?.totalAmount -
-                                          paiement?.totalPaye
-                                      )}
-                                      {' F '}
-                                    </span>
-                                  )}
-                                </td>
-
-                                <td className='text-warning'>
-                                  {capitalizeWords(paiement?.methode)}
-                                </td>
-                              </tr>
-                            ))}
+                                  <td className='text-warning'>
+                                    {capitalizeWords(paiement?.methode)}
+                                  </td>
+                                </tr>
+                              );
+                            })}
                         </tbody>
                       </table>
                     </div>
