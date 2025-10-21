@@ -71,7 +71,7 @@ exports.getAllPaiements = async (req, res) => {
   try {
     const paiements = await Paiement.find()
       .populate('user')
-      .populate({ path: 'commande', populate: { path: 'items.produit' } })
+      .populate({ path: 'commande', populate: [{ path: 'items.produit' }, {path: 'user'}] })
       .sort({ createdAt: -1 });
     return res.status(200).json(paiements);
   } catch (err) {
