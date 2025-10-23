@@ -103,54 +103,48 @@ export default function Facture() {
               >
                 <CardBody>
                   <FactureHeader />
-                  {selectedCommande?.commandeData?.statut === 'livré' &&
-                    selectedCommande?.paiementCommande?.totalAmount -
-                      selectedCommande?.paiementCommande?.totalPaye ===
-                      0 && (
-                      <div
-                        style={{
-                          position: 'absolute',
-                          left: '20px',
-                          transform: 'rotate(-45deg)',
-                          opacity: '0.5',
-                          border: '1px dashed #022f72',
-                          color: ' #022f72',
-                          fontSize: ' 34px',
-                          fontweight: 'bold',
-                          width: '100%',
-                          textAlign: 'cente',
-                          display: 'flex',
-                          justifyContent: 'center',
-                        }}
-                      >
-                        <p> Payé et Livré</p>
-                      </div>
-                    )}
+                  {selectedCommande?.commandeData?.statut === 'livrée' && (
+                    <div
+                      style={{
+                        position: 'absolute',
+                        left: '20px',
+                        transform: 'rotate(-45deg)',
+                        opacity: '0.5',
+                        border: '1px dashed #022f72',
+                        color: ' #022f72',
+                        fontSize: ' 34px',
+                        fontweight: 'bold',
+                        width: '100%',
+                        textAlign: 'cente',
+                        display: 'flex',
+                        justifyContent: 'center',
+                      }}
+                    >
+                      <p> Livré</p>
+                    </div>
+                  )}
 
                   {/* Payé Non Livré */}
-                  {selectedCommande?.commandeData?.statut === 'en attente' &&
-                    selectedCommande?.paiementCommande?.totalAmount -
-                      selectedCommande?.paiementCommande?.totalPaye ===
-                      0 && (
-                      <div
-                        style={{
-                          position: 'absolute',
-                          left: '20px',
-                          transform: 'rotate(-45deg)',
-                          opacity: '0.5',
-                          border: '1px dashed #720202',
-                          color: ' #720202',
-                          fontSize: ' 34px',
-                          fontweight: 'bold',
-                          width: '100%',
-                          textAlign: 'cente',
-                          display: 'flex',
-                          justifyContent: 'center',
-                        }}
-                      >
-                        <p> Payé Non Livré</p>
-                      </div>
-                    )}
+                  {selectedCommande?.commandeData?.statut === 'en attente' && (
+                    <div
+                      style={{
+                        position: 'absolute',
+                        left: '20px',
+                        transform: 'rotate(-45deg)',
+                        opacity: '0.5',
+                        border: '1px dashed #720202',
+                        color: ' #720202',
+                        fontSize: ' 34px',
+                        fontweight: 'bold',
+                        width: '100%',
+                        textAlign: 'cente',
+                        display: 'flex',
+                        justifyContent: 'center',
+                      }}
+                    >
+                      <p> Payé Non Livré</p>
+                    </div>
+                  )}
 
                   {/* Payé Non Livré */}
                   <div className=' my-2 px-2 '>

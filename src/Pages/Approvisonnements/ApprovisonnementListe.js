@@ -8,11 +8,9 @@ import {
   formatPhoneNumber,
   formatPrice,
 } from '../components/capitalizeFunction';
-import { deleteButton } from '../components/AlerteModal';
 import {
   useAllApprovisonnement,
   useCancelApprovisonnement,
-  useDeleteApprovisonnement,
 } from '../../Api/queriesApprovisonnement';
 import Swal from 'sweetalert2';
 import {
@@ -32,7 +30,6 @@ export default function ApprovisonnementListe() {
   const { mutate: cancelApprovisonnement } = useCancelApprovisonnement();
 
   // Supprimer une approvisonnement
-  const { mutate: deleteApprovisonnement } = useDeleteApprovisonnement();
   const [selectedBoutique, setSelectedBoutique] = useState(null);
   // State de chargement pour le Bouton
   const [isDeleting, setIsDeleting] = useState(false);
@@ -103,7 +100,7 @@ export default function ApprovisonnementListe() {
                 setIsDeleting(false);
                 swalWithBootstrapButtons.fire({
                   title: 'Succès!',
-                  text: `Approvisonnement Annulé avec succès STOCK rétabli.`,
+                  text: `Approvisionnement Annulé avec succès STOCK rétabli.`,
                   icon: 'success',
                 });
                 navigate('/produits');
@@ -224,7 +221,7 @@ export default function ApprovisonnementListe() {
                         !isLoading &&
                         !error && (
                           <div className='text-center text-mutate'>
-                            Aucune approvisonnement pour le moment !
+                            Aucune approvisionnement pour le moment !
                           </div>
                         )}
                       {!error &&
@@ -298,14 +295,13 @@ export default function ApprovisonnementListe() {
                                   </td>
                                   {connectedUserRole === 'admin' &&
                                     connectedUserBoutique ===
-                                      appro.user.boutique && (
+                                      appro?.user?.boutique && (
                                       <td>
                                         <div className='d-flex gap-2'>
-                                          {isDeleting && <LoadingSpiner />}{' '}
                                           {!isDeleting && (
                                             <div className='remove'>
                                               <button
-                                                className='btn btn-sm btn-warning remove-item-btn'
+                                                className='btn btn-sm btn-danger remove-item-btn'
                                                 data-bs-toggle='modal'
                                                 data-bs-target='#deleteRecordModal'
                                                 onClick={(e) => {
@@ -313,24 +309,6 @@ export default function ApprovisonnementListe() {
                                                     appro
                                                   );
                                                   e.stopPropagation();
-                                                }}
-                                              >
-                                                Annuler
-                                              </button>
-                                            </div>
-                                          )}
-                                          {!isDeleting && (
-                                            <div className='remove'>
-                                              <button
-                                                className='btn btn-sm btn-danger remove-item-btn'
-                                                data-bs-toggle='modal'
-                                                data-bs-target='#deleteRecordModal'
-                                                onClick={() => {
-                                                  deleteButton(
-                                                    appro?._id,
-                                                    appro?.produit?.name,
-                                                    deleteApprovisonnement
-                                                  );
                                                 }}
                                               >
                                                 <i className='ri-delete-bin-fill text-white'></i>

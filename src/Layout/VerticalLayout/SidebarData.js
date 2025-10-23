@@ -32,7 +32,7 @@ const SidebarData = [
     url: '/getTopProduits',
   },
   {
-    label: 'Approvisonnement',
+    label: 'Approvisionnement',
     // icon: 'bx bx-rotate-right',
     icon: 'fas fa-redo-alt',
     isHasArrow: true,
@@ -45,7 +45,7 @@ const SidebarData = [
   },
 
   {
-    label: 'Historique de Commandes',
+    label: 'Historique de Ventes',
     icon: 'fas fa-server',
     isHasArrow: true,
     url: '/commandes',

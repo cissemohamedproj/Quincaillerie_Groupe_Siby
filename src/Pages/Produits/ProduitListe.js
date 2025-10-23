@@ -110,7 +110,7 @@ export default function ProduitListe() {
                       <Col>
                         <p className='text-center font-size-15 mt-2'>
                           Produit Enregistrées:{' '}
-                          <span className='text-warning text-bold'>
+                          <span className='badge bg-warning text-bold'>
                             {' '}
                             {filterSearchProduits?.length}{' '}
                           </span>
