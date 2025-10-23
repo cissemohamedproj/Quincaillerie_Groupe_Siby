@@ -19,6 +19,11 @@ const produitSchema = new mongoose.Schema(
       default: 0,
       trim: true,
     },
+    lastPrice: {
+      type: Number,
+      default: 0,
+      trim: true,
+    },
     stock: {
       type: Number,
       required: true,
