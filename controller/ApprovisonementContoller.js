@@ -1,7 +1,6 @@
 const mongoose = require('mongoose');
 const Approvisonement = require('../models/ApprovisonementModel');
 const Produit = require('../models/ProduitModel');
-const Depense = require('../models/DepenseModel');
 
 // Create a new approvisonement
 exports.createApprovisonement = async (req, res) => {
@@ -13,22 +12,30 @@ exports.createApprovisonement = async (req, res) => {
     const formatQuantity = Number(quantity);
     const formatPrice = Number(price);
 
-    // Vérification si le produit est fourni
-    if (!produit) {
-      throw new Error('Produit non trouvé');
-    }
+  
 
     // 1. Mise à jour du stock produit
-    const updatedProduct = await Produit.findByIdAndUpdate(
+    const prod = await Produit.findById(
       produit,
-      { $inc: { stock: formatQuantity } },
+    ).session(session);
+
+
+if (!prod) {
+  await session.abortTransaction()
+  session.endSession()
+      return res.status(404).json({message:'Produit introuvable en base'});
+    }
+
+     await Produit.findByIdAndUpdate(
+      prod._id,
+      { $inc: { stock: formatQuantity }, 
+      achatPrice: formatPrice,
+      lastPrice: prod.achatPrice ,
+    },
       { new: true, session }
     );
 
-    if (!updatedProduct) {
-      throw new Error('Produit introuvable en base');
-    }
-
+    
     // 2. Création de l’approvisionnement
     const approvisonement = await Approvisonement.create(
       [
@@ -43,19 +50,7 @@ exports.createApprovisonement = async (req, res) => {
       { session }
     );
 
-    // 3. Création de la dépense
-    // await Depense.create(
-    //   [
-    //     {
-    //       user: req.user.id,
-    //       totalAmount: formatPrice * formatQuantity,
-    //       motifDepense: `Approvisionnement de ${formatQuantity} unité(s) du produit ${updatedProduct.name}`,
-    //       dateOfDepense: approvisonement[0].deliveryDate,
-    //     },
-    //   ],
-    //   { session }
-    // );
-
+    
     await session.commitTransaction();
     session.endSession();
 
@@ -104,26 +99,52 @@ exports.getApprovisonementById = async (req, res) => {
 
 // Delete an approvisonement by ID
 exports.cancelApprovisonement = async (req, res) => {
+  const session =await mongoose.startSession()
+  session.startTransaction()
   try {
     const approvisonement = await Approvisonement.findByIdAndDelete(
-      req.params.id
+      req.params.id,
+      {session}
     );
 
     if (!approvisonement) {
+      await session.abortTransaction()
+      session.endSession()
       return res.status(404).json({ message: 'Approvisonement not found' });
     }
 
+
+      // 1. Mise à jour du stock produit
+      const prod = await Produit.findById(
+        approvisonement.produit,
+      ).session(session);
+  
+  
+  if (!prod) {
+    await session.abortTransaction()
+    session.endSession()
+        return res.status(404).json({message:'Produit introuvable en base'});
+      }
+
+      
     // On décrémente le stock du PRODUIT associé
     await Produit.findByIdAndUpdate(
-      approvisonement.produit,
-      { $inc: { stock: -approvisonement.quantity } },
-      { new: true }
+      prod._id,
+      { $inc: { stock: -approvisonement.quantity },
+    achatPrice: prod.lastPrice,
+    },
+      { new: true , session}
     );
+
+await session.commitTransaction()
+session.endSession()
 
     return res
       .status(200)
       .json({ message: 'Approvisonement deleted successfully' });
   } catch (error) {
+    await session.abortTransaction()
+    session.endSession()
     res.status(400).json({ message: error.message });
   }
 };
