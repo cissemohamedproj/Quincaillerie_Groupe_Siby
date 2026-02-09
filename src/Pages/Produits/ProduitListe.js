@@ -23,12 +23,21 @@ import { deleteButton } from '../components/AlerteModal';
 import defaultImg from './../../assets/images/no_image.png';
 import { useNavigate } from 'react-router-dom';
 import ProduitForm from './ProduitForm';
-import { useAllProduit, useDeleteProduit } from '../../Api/queriesProduits';
+import {
+  useDeleteProduit,
+  usePagignationProduit,
+} from '../../Api/queriesProduits';
 import { connectedUserRole } from '../Authentication/userInfos';
 
 export default function ProduitListe() {
+  const [page, setPage] = useState(1);
+  const limit = 35;
   const [form_modal, setForm_modal] = useState(false);
-  const { data: produits, isLoading, error } = useAllProduit();
+  const {
+    data: produits,
+    isLoading,
+    error,
+  } = usePagignationProduit(page, limit);
   const { mutate: deleteProduit, isLoading: isDeletingProduct } =
     useDeleteProduit();
   const [produitToUpdate, setProduitToUpdate] = useState(null);
@@ -39,7 +48,7 @@ export default function ProduitListe() {
   const [searchTerm, setSearchTerm] = useState('');
 
   // Fontion pour Rechercher
-  const filterSearchProduits = produits
+  const filterSearchProduits = produits?.items?.data
     ?.filter((prod) => {
       const search = searchTerm.toLowerCase();
 
@@ -124,6 +133,34 @@ export default function ProduitListe() {
                           </span>
                         </p>
                       </Col>
+                      <div className='d-flex gap-3 justify-content-end align-items-center mt-4'>
+                        <Button
+                          disabled={page === 1}
+                          color='secondary'
+                          onClick={() => setPage((p) => p - 1)}
+                        >
+                          Précédent
+                        </Button>
+
+                        <p className='text-center mt-2'>
+                          {' '}
+                          Page{' '}
+                          <span className='text-primary'>
+                            {produits?.items?.page}
+                          </span>{' '}
+                          sur{' '}
+                          <span className='text-info'>
+                            {produits?.items?.totalPages}
+                          </span>
+                        </p>
+                        <Button
+                          disabled={page === produits?.items.totalPages}
+                          color='primary'
+                          onClick={() => setPage((p) => p + 1)}
+                        >
+                          Suivant
+                        </Button>
+                      </div>
                       <Col>
                         <div className='d-flex justify-content-sm-end gap-2'>
                           {searchTerm !== '' && (

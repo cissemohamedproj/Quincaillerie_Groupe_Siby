@@ -25,20 +25,20 @@ export const useUpdateCommande = () => {
     onSuccess: () => queryClient.invalidateQueries(['commandes']),
   });
 };
-// // Lire toutes les commandes
-// export const useAllCommandes = () =>
-//   useQuery({
-//     queryKey: ['commandes'],
-//     queryFn: () =>
-//       api.get('/commandes/getAllCommandes').then((res) => res.data),
-//   });
+// Lire toutes les commandes
+export const useAllCommandes = () =>
+  useQuery({
+    queryKey: ['commandes'],
+    queryFn: () =>
+      api.get('/commandes/getAllCommandes').then((res) => res.data),
+  });
 
-export const useAllCommandes = (page = 1, limit = 30) =>
+export const usePagignationCommandes = (page = 1, limit = 30) =>
   useQuery({
     queryKey: ['commandes', page, limit], //  clé dépendante
     queryFn: () =>
       api
-        .get('/commandes/getAllCommandes', {
+        .get('/commandes/getPagignationCommandes', {
           params: { page, limit },
         })
         .then((res) => res.data),

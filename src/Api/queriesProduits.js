@@ -1,4 +1,9 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import {
+  useQuery,
+  useMutation,
+  useQueryClient,
+  keepPreviousData,
+} from '@tanstack/react-query';
 import api from './api';
 
 // Créer une nouvelle produits
@@ -25,6 +30,18 @@ export const useAllProduit = () =>
   useQuery({
     queryKey: ['produits'],
     queryFn: () => api.get('/produits/getAllProduits').then((res) => res.data),
+    keepPreviousData: true,
+  });
+
+// Lire toutes les produits
+export const usePagignationProduit = (page = 1, limit = 35) =>
+  useQuery({
+    queryKey: ['produits', page, limit],
+    queryFn: () =>
+      api
+        .get('/produits/getPagignationProduits', { params: { page, limit } })
+        .then((res) => res.data),
+    keepPreviousData: true,
   });
 
 // Produit dont le Stock est terminé
@@ -42,7 +59,7 @@ export const useOneProduit = (id) =>
     queryFn: () =>
       api.get(`/produits/getOneProduit/${id}`).then((res) => res.data),
     enabled: Boolean(id),
-    staleTime: 1000 * 60 * 5, //chaque 5 minutes rafraichir les données
+    staleTime: 1000 * 60 * 1, //chaque 5 minutes rafraichir les données
   });
 
 // Affficher le produit lors de l'approvisonnement
@@ -51,7 +68,7 @@ export const useOneProduitWhenApprovisionne = (id) =>
     queryKey: ['getProduit', id],
     queryFn: () => api.get(`/approvisonnement/${id}`).then((res) => res.data),
     enabled: Boolean(id),
-    staleTime: 1000 * 60 * 5, //chaque 5 minutes rafraichir les données
+    staleTime: 1000 * 60 * 1, //chaque 1 minutes rafraichir les données
   });
 
 // Supprimer une produits

@@ -31,6 +31,19 @@ export const useAllApprovisonnement = () =>
         .then((res) => res.data),
   });
 
+// Lire toutes les approvisonnements
+export const usePagignationApprovisonnement = (page = 1, limit = 35) =>
+  useQuery({
+    queryKey: ['approvisonnements', page, limit],
+    queryFn: () =>
+      api
+        .get('/approvisonnements/getPagignationApprovisonements', {
+          params: { page, limit },
+        })
+        .then((res) => res.data),
+    keepPreviousData: true,
+  });
+
 // Obtenir une Approvisonnement
 export const useOneApprovisonnement = (id) =>
   useQuery({

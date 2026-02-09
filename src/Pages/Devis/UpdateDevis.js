@@ -24,21 +24,27 @@ import {
   successMessageAlert,
 } from '../components/AlerteModal';
 import defaultImg from './../../assets/images/no_image.png';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useOneDevis, useUpdateDevis } from '../../Api/queriesDevis';
-import { useAllProduit } from '../../Api/queriesProduits';
+import { usePagignationProduit } from '../../Api/queriesProduits';
 import showToastAlert from '../components/ToasMessage';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import BackButton from '../components/BackButton';
 
 export default function UpdateDevis() {
+  const [page, setPage] = useState(1);
+  const limit = 35;
   // State de navigation
   const navigate = useNavigate();
 
   const { id } = useParams();
   // Query pour afficher les Médicament
-  const { data: produitsData, isLoading, error } = useAllProduit();
+  const {
+    data: produitsData,
+    isLoading,
+    error,
+  } = usePagignationProduit(page, limit);
   const { mutate: updateDevis } = useUpdateDevis();
   const { data: selectedDevis } = useOneDevis(id);
 
@@ -46,7 +52,7 @@ export default function UpdateDevis() {
   const [searchTerm, setSearchTerm] = useState('');
 
   // Fontion pour Rechercher
-  const filterSearchProduits = produitsData?.filter((prod) => {
+  const filterSearchProduits = produitsData?.items?.data?.filter((prod) => {
     const search = searchTerm.toLowerCase();
 
     return (
@@ -456,68 +462,98 @@ export default function UpdateDevis() {
           </Row>
           {/* ------------------------------------------------------------- */}
           {/* Liste des produits */}
-          <div>
-            <Card>
-              <CardBody>
-                {isLoading && <LoadingSpiner />}
-                {error && (
-                  <div className='text-danger text-center'>
-                    Une erreur est survenue ! Veuillez actualiser la page.
-                  </div>
-                )}
-                <Row>
-                  {/* Barre de Recherche */}
-                  <Col sm={12} className='my-4'>
-                    <div className='d-flex justify-content-start gap-2 p-2'>
-                      {searchTerm !== '' && (
-                        <Button
-                          color='danger'
-                          onClick={() => setSearchTerm('')}
-                        >
-                          <i className='fas fa-window-close'></i>
-                        </Button>
-                      )}
-                      <div className='search-box me-4'>
-                        <input
-                          type='text'
-                          className='form-control search border border-dark rounded'
-                          placeholder='Rechercher...'
-                          value={searchTerm}
-                          onChange={(e) => setSearchTerm(e.target.value)}
-                        />
-                      </div>
+          {!isSubmitting && (
+            <div>
+              <Card>
+                <CardBody>
+                  {isLoading && <LoadingSpiner />}
+                  {error && (
+                    <div className='text-danger text-center'>
+                      Une erreur est survenue ! Veuillez actualiser la page.
                     </div>
-                  </Col>
-
-                  {/* --------------------------------------------------------------- */}
-                  {/* --------------------------------------------------------------- */}
-                  {/* --------------------------------------------------------------- */}
-                  {/* Maping Produit Liste */}
-                  <div className='d-flex flex-wrap gap-3 justify-content-center'>
-                    {!error &&
-                      filterSearchProduits?.length > 0 &&
-                      filterSearchProduits?.map((produit) => (
-                        <div key={produit._id}>
-                          <Card
-                            className='shadow shadow-lg'
-                            onClick={() => addToCart(produit)}
-                            style={{ cursor: 'pointer' }}
+                  )}
+                  <Row>
+                    {/* Barre de Recherche */}
+                    <Col sm={12} className='my-4'>
+                      <div className='d-flex justify-content-start gap-2 p-2'>
+                        {searchTerm !== '' && (
+                          <Button
+                            color='danger'
+                            onClick={() => setSearchTerm('')}
                           >
-                            <CardImg
-                              style={{
-                                height: '100px',
-                                objectFit: 'contain',
-                              }}
-                              src={
-                                produit.imageUrl ? produit.imageUrl : defaultImg
-                              }
-                              alt={produit.name}
-                            />
-                            <CardBody>
-                              <CardText className='text-center'>
-                                {capitalizeWords(produit.name)}
-                              </CardText>
-                              {/* <CardText className='font-size-15 text-center'>
+                            <i className='fas fa-window-close'></i>
+                          </Button>
+                        )}
+                        <div className='search-box me-4'>
+                          <input
+                            type='text'
+                            className='form-control search border border-dark rounded'
+                            placeholder='Rechercher...'
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                          />
+                        </div>
+                      </div>
+                    </Col>
+                    <div className='d-flex gap-3 justify-content-end align-items-center mb-4'>
+                      <Button
+                        disabled={page === 1}
+                        color='secondary'
+                        onClick={() => setPage((p) => p - 1)}
+                      >
+                        Précédent
+                      </Button>
+
+                      <p className='text-center mt-2'>
+                        {' '}
+                        Page{' '}
+                        <span className='text-primary'>
+                          {produitsData?.items?.page}
+                        </span>{' '}
+                        sur{' '}
+                        <span className='text-info'>
+                          {produitsData?.items?.totalPages}
+                        </span>
+                      </p>
+                      <Button
+                        disabled={page === produitsData?.items.totalPages}
+                        color='primary'
+                        onClick={() => setPage((p) => p + 1)}
+                      >
+                        Suivant
+                      </Button>
+                    </div>
+                    {/* --------------------------------------------------------------- */}
+                    {/* --------------------------------------------------------------- */}
+                    {/* --------------------------------------------------------------- */}
+                    {/* Maping Produit Liste */}
+                    <div className='d-flex flex-wrap gap-3 justify-content-center'>
+                      {!error &&
+                        filterSearchProduits?.length > 0 &&
+                        filterSearchProduits?.map((produit) => (
+                          <div key={produit._id}>
+                            <Card
+                              className='shadow shadow-lg'
+                              onClick={() => addToCart(produit)}
+                              style={{ cursor: 'pointer' }}
+                            >
+                              <CardImg
+                                style={{
+                                  height: '100px',
+                                  objectFit: 'contain',
+                                }}
+                                src={
+                                  produit.imageUrl
+                                    ? produit.imageUrl
+                                    : defaultImg
+                                }
+                                alt={produit.name}
+                              />
+                              <CardBody>
+                                <CardText className='text-center'>
+                                  {capitalizeWords(produit.name)}
+                                </CardText>
+                                {/* <CardText className='font-size-15 text-center'>
                                 <strong>Catégorie: </strong>{' '}
                                 <span className='text-info '>
                                   {' '}
@@ -525,32 +561,33 @@ export default function UpdateDevis() {
                                 </span>
                               </CardText> */}
 
-                              <CardText className='text-center fw-bold'>
-                                {formatPrice(produit.price)} F
-                              </CardText>
-                              <CardTitle className='text-center'>
-                                Stock:
-                                {produit.stock >= 10 ? (
-                                  <span style={{ color: 'gray' }}>
-                                    {' '}
-                                    {formatPrice(produit?.stock)}
-                                  </span>
-                                ) : (
-                                  <span className='text-danger'>
-                                    {' '}
-                                    {formatPrice(produit?.stock)}
-                                  </span>
-                                )}
-                              </CardTitle>
-                            </CardBody>
-                          </Card>
-                        </div>
-                      ))}
-                  </div>
-                </Row>
-              </CardBody>
-            </Card>
-          </div>
+                                <CardText className='text-center fw-bold'>
+                                  {formatPrice(produit.price)} F
+                                </CardText>
+                                <CardTitle className='text-center'>
+                                  Stock:
+                                  {produit.stock >= 10 ? (
+                                    <span style={{ color: 'gray' }}>
+                                      {' '}
+                                      {formatPrice(produit?.stock)}
+                                    </span>
+                                  ) : (
+                                    <span className='text-danger'>
+                                      {' '}
+                                      {formatPrice(produit?.stock)}
+                                    </span>
+                                  )}
+                                </CardTitle>
+                              </CardBody>
+                            </Card>
+                          </div>
+                        ))}
+                    </div>
+                  </Row>
+                </CardBody>
+              </Card>
+            </div>
+          )}
         </Container>
       </div>
     </React.Fragment>

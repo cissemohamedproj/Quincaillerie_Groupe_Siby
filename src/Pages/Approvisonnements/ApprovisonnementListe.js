@@ -11,6 +11,7 @@ import {
 import {
   useAllApprovisonnement,
   useCancelApprovisonnement,
+  usePagignationApprovisonnement,
 } from '../../Api/queriesApprovisonnement';
 import Swal from 'sweetalert2';
 import {
@@ -19,12 +20,14 @@ import {
 } from '../Authentication/userInfos';
 
 export default function ApprovisonnementListe() {
+  const [page, setPage] = useState(1);
+  const limit = 35;
   // Recuperer la Liste des APPROVISONNEMENT
   const {
     data: approvisonnementData,
     isLoading,
     error,
-  } = useAllApprovisonnement();
+  } = usePagignationApprovisonnement(page, limit);
 
   // Annuler une APPROVISONNEMENT
   const { mutate: cancelApprovisonnement } = useCancelApprovisonnement();
@@ -41,7 +44,7 @@ export default function ApprovisonnementListe() {
   const [searchTerm, setSearchTerm] = useState('');
 
   // Fonction pour la recherche
-  const filterSearchApprovisonnement = approvisonnementData
+  const filterSearchApprovisonnement = approvisonnementData?.results?.data
     ?.filter((appro) => {
       const search = searchTerm.toLowerCase();
 
@@ -208,6 +211,36 @@ export default function ApprovisonnementListe() {
                       </div>
                     </Col>
                   </Row>
+                  <div className='d-flex gap-3 justify-content-end align-items-center mt-4'>
+                    <Button
+                      disabled={page === 1}
+                      color='secondary'
+                      onClick={() => setPage((p) => p - 1)}
+                    >
+                      Précédent
+                    </Button>
+
+                    <p className='text-center mt-2'>
+                      {' '}
+                      Page{' '}
+                      <span className='text-primary'>
+                        {approvisonnementData?.results?.page}
+                      </span>{' '}
+                      sur{' '}
+                      <span className='text-info'>
+                        {approvisonnementData?.results?.totalPages}
+                      </span>
+                    </p>
+                    <Button
+                      disabled={
+                        page === approvisonnementData?.results.totalPages
+                      }
+                      color='primary'
+                      onClick={() => setPage((p) => p + 1)}
+                    >
+                      Suivant
+                    </Button>
+                  </div>
                   <div id='approvisonnementList'>
                     {error && (
                       <div className='text-danger text-center'>

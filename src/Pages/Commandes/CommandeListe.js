@@ -8,7 +8,10 @@ import {
 } from '../components/capitalizeFunction';
 import React, { useState } from 'react';
 import Swal from 'sweetalert2';
-import { useAllCommandes, useDeleteCommande } from '../../Api/queriesCommande';
+import {
+  useDeleteCommande,
+  usePagignationCommandes,
+} from '../../Api/queriesCommande';
 import { useNavigate } from 'react-router-dom';
 import { connectedUserBoutique } from '../Authentication/userInfos';
 
@@ -16,7 +19,11 @@ export default function CommandeListe() {
   const [page, setPage] = useState(1);
   const limit = 30;
   // Afficher toutes les commandes
-  const { data: commandes, isLoading, error } = useAllCommandes(page, limit);
+  const {
+    data: commandes,
+    isLoading,
+    error,
+  } = usePagignationCommandes(page, limit);
   const { mutate: deleteCommandeAndRestorStock } = useDeleteCommande();
 
   // State de chargement pour la suppression
@@ -364,7 +371,7 @@ export default function CommandeListe() {
                           id='commandeTable'
                         >
                           <thead className='table-light'>
-                            <tr>
+                            <tr className='text-center'>
                               <th scope='col' style={{ width: '50px' }}>
                                 <i className='fas fa-dollar-sign text-warning'></i>
                               </th>
@@ -375,11 +382,9 @@ export default function CommandeListe() {
                                 Client
                               </th>
                               <th className='sort' data-sort='phoneNumber'>
-                                Téléphone
+                                Contact
                               </th>
-                              <th className='sort' data-sort='adresse'>
-                                Adresse de Livraison
-                              </th>
+
                               <th className='sort' data-sort='items'>
                                 Article
                               </th>
@@ -395,7 +400,7 @@ export default function CommandeListe() {
                           <tbody className='list form-check-all text-center'>
                             {filterCommandes?.length > 0 &&
                               filterCommandes?.map((comm) => (
-                                <tr key={comm?._id}>
+                                <tr key={comm?._id} className='text-center'>
                                   <th scope='row'>
                                     {commandes?.factures?.data?.some(
                                       (fact) =>
@@ -418,10 +423,13 @@ export default function CommandeListe() {
                                   </th>
                                   <td>{capitalizeWords(comm?.fullName)}</td>
                                   <td>
-                                    {formatPhoneNumber(comm?.phoneNumber) ||
-                                      '------'}
+                                    {capitalizeWords(comm?.adresse)}
+
+                                    <p>
+                                      {formatPhoneNumber(comm?.phoneNumber) ||
+                                        '------'}
+                                    </p>
                                   </td>
-                                  <td>{capitalizeWords(comm?.adresse)}</td>
 
                                   <td>
                                     {comm?.items?.length} acticles
