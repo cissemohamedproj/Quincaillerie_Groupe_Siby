@@ -25,12 +25,24 @@ export const useUpdateCommande = () => {
     onSuccess: () => queryClient.invalidateQueries(['commandes']),
   });
 };
-// Lire toutes les commandes
-export const useAllCommandes = () =>
+// // Lire toutes les commandes
+// export const useAllCommandes = () =>
+//   useQuery({
+//     queryKey: ['commandes'],
+//     queryFn: () =>
+//       api.get('/commandes/getAllCommandes').then((res) => res.data),
+//   });
+
+export const useAllCommandes = (page = 1, limit = 30) =>
   useQuery({
-    queryKey: ['commandes'],
+    queryKey: ['commandes', page, limit], //  clé dépendante
     queryFn: () =>
-      api.get('/commandes/getAllCommandes').then((res) => res.data),
+      api
+        .get('/commandes/getAllCommandes', {
+          params: { page, limit },
+        })
+        .then((res) => res.data),
+    keepPreviousData: true, //  pagination fluide
   });
 
 // Produits les plus vendu
@@ -47,7 +59,7 @@ export const useOneCommande = (id) =>
     queryFn: () =>
       api.get(`/commandes/getOneCommande/${id}`).then((res) => res.data),
     enabled: Boolean(id),
-    staleTime: 1000 * 60 * 5, //chaque 5 minutes rafraichir les données
+    staleTime: 1000 * 60 * 1, //chaque 1 minutes rafraichir les données
   });
 
 // Ajouter une COMMANDE et Decrementer la quantité au Stock de PRODUIT

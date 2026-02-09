@@ -13,8 +13,10 @@ import { useNavigate } from 'react-router-dom';
 import { connectedUserBoutique } from '../Authentication/userInfos';
 
 export default function CommandeListe() {
+  const [page, setPage] = useState(1);
+  const limit = 30;
   // Afficher toutes les commandes
-  const { data: commandes, isLoading, error } = useAllCommandes();
+  const { data: commandes, isLoading, error } = useAllCommandes(page, limit);
   const { mutate: deleteCommandeAndRestorStock } = useDeleteCommande();
 
   // State de chargement pour la suppression
@@ -105,14 +107,13 @@ export default function CommandeListe() {
       });
   }
   // ------------------------------------------------------------
-
   const [searchTerm, setSearchTerm] = useState('');
   const [todayCommande, setTodayCommande] = useState(false);
   const [delivredCommande, setDelivredCommande] = useState(false);
   const [notDelivredCommande, setNotdelivredCommande] = useState(false);
   const [selectedBoutique, setSelectedBoutique] = useState(null);
   // Fonction de Recherche dans la barre de recherche
-  const filterCommandes = commandes?.commandesListe
+  const filterCommandes = commandes?.commandes?.data
     ?.filter((comm) => {
       const search = searchTerm.toLowerCase();
       return (
@@ -322,6 +323,34 @@ export default function CommandeListe() {
                       </div>
                     )}
                     {isLoading && <LoadingSpiner />}
+                    <div className='d-flex gap-3 justify-content-end align-items-center mt-4'>
+                      <Button
+                        disabled={page === 1}
+                        color='secondary'
+                        onClick={() => setPage((p) => p - 1)}
+                      >
+                        Précédent
+                      </Button>
+
+                      <p className='text-center mt-2'>
+                        {' '}
+                        Page{' '}
+                        <span className='text-primary'>
+                          {commandes?.commandes?.page}
+                        </span>{' '}
+                        sur{' '}
+                        <span className='text-info'>
+                          {commandes?.commandes?.totalPages}
+                        </span>
+                      </p>
+                      <Button
+                        disabled={page === commandes?.commandes.totalPages}
+                        color='primary'
+                        onClick={() => setPage((p) => p + 1)}
+                      >
+                        Suivant
+                      </Button>
+                    </div>
 
                     <div className='table-responsive table-card mt-3 mb-1'>
                       {filterCommandes?.length === 0 && (
@@ -368,7 +397,7 @@ export default function CommandeListe() {
                               filterCommandes?.map((comm) => (
                                 <tr key={comm?._id}>
                                   <th scope='row'>
-                                    {commandes?.factures?.some(
+                                    {commandes?.factures?.data?.some(
                                       (fact) =>
                                         fact?.commande?._id === comm?._id
                                     ) ? (
