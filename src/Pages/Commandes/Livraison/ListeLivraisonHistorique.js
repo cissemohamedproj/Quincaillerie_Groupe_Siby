@@ -25,6 +25,7 @@ import {
   connectedUserRole,
 } from '../../Authentication/userInfos';
 import FactureLivraison from './FactureLivraison';
+import { calculerConversionM2 } from '../../components/converFunction';
 
 export default function LivraisonHistorique({ id, commandeItems }) {
   const [form_modal, setForm_modal] = useState(false);
@@ -61,7 +62,8 @@ export default function LivraisonHistorique({ id, commandeItems }) {
     (livraison) => {
       const search = searchTerm.toLowerCase();
       return (
-        livraison?.produit.toLowerCase().includes(search) ||
+        livraison?.produit?.toLowerCase().includes(search) ||
+        livraison?.produitID?.name.toLowerCase().includes(search) ||
         (livraison?.quantity || 0).toString().includes(search) ||
         new Date(livraison?.livraisonDate)
           .toLocaleDateString('fr-Fr')
@@ -73,22 +75,28 @@ export default function LivraisonHistorique({ id, commandeItems }) {
   // ------------------------------------------------
   // Calcule de Quantité Commandés et Livrée pour chaque Produit
   const productDelivredResult = commandeItems?.items?.map((commItem) => {
-    const livraisonFilter = livraisonHistoriqueData?.filter(
-      (livItem) => livItem?.produit === commItem?.produit.name
+    const livraisonFilter = livraisonHistoriqueData?.filter((livItem) =>
+      livItem?.produit
+        ? livItem?.produit === commItem?.produit.name
+        : livItem?.produitID?.name === commItem?.produit.name
     );
-
     const totalQuantityDelivry = livraisonFilter?.reduce(
       (current, value) => (current += value.quantity),
       0
     );
 
     return {
-      produit: commItem?.produit?.name,
+      produit: commItem?.produit,
       quantityCommandee: commItem?.quantity,
       quantityLivree: totalQuantityDelivry,
       quantityRestante: commItem?.quantity - totalQuantityDelivry,
     };
   });
+
+  // -------------------------------------------------------------
+  // -------------------------------------------------------------
+  // -------------------------------------------------------------
+
   // ---------------------------------------
   // ---------------------------------------
   // ---------------------------------------
@@ -192,10 +200,13 @@ export default function LivraisonHistorique({ id, commandeItems }) {
                     <div className='col-sm-auto'>
                       {commandeItems?.statut !== 'livré' &&
                         productDelivredResult?.map((item) => (
-                          <div key={item?.produit} className='text-center my-2'>
+                          <div
+                            key={item?.produit._id}
+                            className='text-center my-2'
+                          >
                             <p className='font-size-13'>
                               <strong className='text-muted'>
-                                {capitalizeWords(item?.produit)}:{' '}
+                                {capitalizeWords(item?.produit.name)}:{' '}
                               </strong>
                               <span className='text-success'>
                                 {' '}
@@ -274,70 +285,88 @@ export default function LivraisonHistorique({ id, commandeItems }) {
                             <tbody className='list form-check-all'>
                               {filterSearchLivraisonHistorique?.length > 0 &&
                                 filterSearchLivraisonHistorique?.map(
-                                  (livraison) => (
-                                    <tr key={livraison?._id}>
-                                      <th scope='row'>
-                                        {new Date(
-                                          livraison?.livraisonDate
-                                        ).toLocaleDateString()}
-                                      </th>
+                                  (livraison) => {
+                                    const result = calculerConversionM2(
+                                      livraison.quantity,
+                                      livraison.produitID?.surfaceParPiece,
+                                      livraison.produitID?.piecesParCarton
+                                    );
 
-                                      <td>
-                                        {capitalizeWords(livraison?.produit)}
-                                      </td>
+                                    const categoryType =
+                                      livraison.produitID?.category;
+                                    return (
+                                      <tr key={livraison?._id}>
+                                        <th scope='row'>
+                                          {new Date(
+                                            livraison?.livraisonDate
+                                          ).toLocaleDateString()}
+                                        </th>
 
-                                      <td>
-                                        {formatPrice(livraison?.quantity)}
-                                      </td>
+                                        <td>
+                                          {capitalizeWords(
+                                            livraison?.produitID?.name
+                                          )}
+                                        </td>
 
-                                      {connectedUserRole === 'admin' &&
-                                        connectedUserBoutique ===
-                                          commandeItems?.user?.boutique && (
-                                          <td>
-                                            {isDeleting && <LoadingSpiner />}
-                                            {!isDeleting && (
-                                              <div className='d-flex gap-2 justify-content-center alitgn-items-center'>
-                                                <div>
-                                                  <button
-                                                    className='btn btn-sm btn-warning show-item-btn'
-                                                    data-bs-toggle='modal'
-                                                    data-bs-target='#showModal'
-                                                    onClick={() => {
-                                                      setLivraisonToUpdate(
-                                                        livraison
-                                                      );
-                                                      setFormTitle(
-                                                        'Modifier la Livraison'
-                                                      );
-                                                      tog_form_modal();
-                                                    }}
-                                                  >
-                                                    <i className='bx bx-pencil align-center text-white'></i>
-                                                  </button>
+                                        <td>
+                                          {formatPrice(livraison?.quantity)}
+                                          {categoryType === 'Carreaux' && ' m²'}
+                                          {categoryType === 'Carreaux' && (
+                                            <p>
+                                              = ({result.cartons} cartons) et{' '}
+                                              {result.piecesSupplementaires}{' '}
+                                              pièces{' '}
+                                            </p>
+                                          )}
+                                        </td>
+
+                                        {connectedUserRole === 'admin' &&
+                                          connectedUserBoutique ===
+                                            commandeItems?.user?.boutique && (
+                                            <td>
+                                              {isDeleting && <LoadingSpiner />}
+                                              {!isDeleting && (
+                                                <div className='d-flex gap-2 justify-content-center alitgn-items-center'>
+                                                  <div>
+                                                    <button
+                                                      className='btn btn-sm btn-warning show-item-btn'
+                                                      onClick={() => {
+                                                        setLivraisonToUpdate(
+                                                          livraison
+                                                        );
+                                                        setFormTitle(
+                                                          'Modifier la Livraison'
+                                                        );
+                                                        tog_form_modal();
+                                                      }}
+                                                    >
+                                                      <i className='bx bx-pencil align-center text-white'></i>
+                                                    </button>
+                                                  </div>
+
+                                                  <div className='remove'>
+                                                    <button
+                                                      className='btn btn-sm btn-danger remove-item-btn'
+                                                      onClick={() => {
+                                                        deleteButton(
+                                                          livraison?._id,
+                                                          livraison?.produit ||
+                                                            livraison.produitID
+                                                              ?.name,
+                                                          deleteLivraisonHistorique
+                                                        );
+                                                      }}
+                                                    >
+                                                      <i className='ri-delete-bin-fill text-white'></i>
+                                                    </button>
+                                                  </div>
                                                 </div>
-
-                                                <div className='remove'>
-                                                  <button
-                                                    className='btn btn-sm btn-danger remove-item-btn'
-                                                    data-bs-toggle='modal'
-                                                    data-bs-target='#deleteRecordModal'
-                                                    onClick={() => {
-                                                      deleteButton(
-                                                        livraison?._id,
-                                                        livraison?.produit,
-                                                        deleteLivraisonHistorique
-                                                      );
-                                                    }}
-                                                  >
-                                                    <i className='ri-delete-bin-fill text-white'></i>
-                                                  </button>
-                                                </div>
-                                              </div>
-                                            )}
-                                          </td>
-                                        )}
-                                    </tr>
-                                  )
+                                              )}
+                                            </td>
+                                          )}
+                                      </tr>
+                                    );
+                                  }
                                 )}
                             </tbody>
                           </table>

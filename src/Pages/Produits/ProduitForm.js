@@ -10,7 +10,7 @@ import {
 } from 'reactstrap';
 import * as Yup from 'yup';
 import { useFormik } from 'formik';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   errorMessageAlert,
   successMessageAlert,
@@ -32,6 +32,10 @@ const ProduitForm = ({ produitToEdit, tog_form_modal }) => {
 
     initialValues: {
       name: produitToEdit?.name || '',
+      category: produitToEdit?.category || 'Autre',
+      surfaceParPiece: produitToEdit?.surfaceParPiece || 0,
+      piecesParCarton: produitToEdit?.piecesParCarton || 0,
+      surfaceParCarton: produitToEdit?.surfaceParCarton || 0,
       price: produitToEdit?.price || undefined,
       achatPrice: produitToEdit?.achatPrice || undefined,
       stock: produitToEdit?.stock || undefined,
@@ -103,6 +107,28 @@ const ProduitForm = ({ produitToEdit, tog_form_modal }) => {
     },
   });
 
+  useEffect(() => {
+    var sfPiece = validation.values.surfaceParPiece;
+    var nbPieceParCarton = validation.values.piecesParCarton;
+
+    if (sfPiece === 0 || nbPieceParCarton === 0) return;
+
+    const sfParCarton = sfPiece * nbPieceParCarton;
+
+    validation.setFieldValue('surfaceParCarton', sfParCarton);
+
+    const cat = validation.values.category;
+    if (cat !== 'Carreaux') {
+      validation.setFieldValue('surfaceParPiece', 0);
+      validation.setFieldValue('piecesParCarton', 0);
+      validation.setFieldValue('surfaceParCarton', 0);
+    }
+  }, [
+    validation.values.surfaceParPiece,
+    validation.values.piecesParCarton,
+    validation.values.category,
+  ]);
+
   return (
     <Form
       className='needs-validation'
@@ -113,7 +139,7 @@ const ProduitForm = ({ produitToEdit, tog_form_modal }) => {
       }}
     >
       <Row>
-        <Col md='12'>
+        <Col md='6'>
           <FormGroup className='mb-3'>
             <Label htmlFor='name'>Nom du Produit</Label>
             <Input
@@ -136,10 +162,42 @@ const ProduitForm = ({ produitToEdit, tog_form_modal }) => {
             ) : null}
           </FormGroup>
         </Col>
+        <Col md='6'>
+          <FormGroup className='mb-3'>
+            <Label htmlFor='category'>Catégorie</Label>
+            <Input
+              name='category'
+              placeholder='Sélectionner une catégorie'
+              type='select'
+              className='form-control border-1 border-dark'
+              id='category'
+              onChange={validation.handleChange}
+              onBlur={validation.handleBlur}
+              value={validation.values.category || ''}
+              invalid={
+                validation.touched.category && validation.errors.category
+                  ? true
+                  : false
+              }
+            >
+              <option value='Autre'> Autre</option>
+              <option value='Construction'>Construction</option>
+              <option value='Carreaux'> Carreaux</option>
+              <option value='Décoration'>Décoration</option>
+              <option value='Electronique'>Electronique</option>
+              <option value='Plomberie'>Plomberie</option>
+            </Input>
+            {validation.touched.category && validation.errors.category ? (
+              <FormFeedback type='invalid'>
+                {validation.errors.category}
+              </FormFeedback>
+            ) : null}
+          </FormGroup>
+        </Col>
       </Row>
 
       <Row>
-        <Col md='6'>
+        <Col md='4'>
           <FormGroup className='mb-3'>
             <Label htmlFor='stock'>Stock Disponible</Label>
             <Input
@@ -147,7 +205,7 @@ const ProduitForm = ({ produitToEdit, tog_form_modal }) => {
               placeholder='Stock initial disponible'
               type='number'
               min={0}
-              step={0.1}
+              step={0.2}
               className='form-control border-1 border-dark'
               id='stock'
               onChange={validation.handleChange}
@@ -166,7 +224,7 @@ const ProduitForm = ({ produitToEdit, tog_form_modal }) => {
             ) : null}
           </FormGroup>
         </Col>
-        <Col md='6'>
+        <Col md='4'>
           <FormGroup className='mb-3'>
             <Label htmlFor='achatPrice'>Prix d'Achat</Label>
             <Input
@@ -191,9 +249,8 @@ const ProduitForm = ({ produitToEdit, tog_form_modal }) => {
             ) : null}
           </FormGroup>
         </Col>
-      </Row>
-      <Row>
-        <Col sm='12'>
+
+        <Col sm='4'>
           <FormGroup className='mb-3'>
             <Label htmlFor='price'>Prix de Vente</Label>
             <Input
@@ -220,6 +277,76 @@ const ProduitForm = ({ produitToEdit, tog_form_modal }) => {
         </Col>
       </Row>
 
+      {validation.values.category === 'Carreaux' && (
+        <Row>
+          <Col md='4'>
+            <FormGroup className='mb-3'>
+              <Label htmlFor='surfaceParPiece'>m² de Pièce</Label>
+              <Input
+                name='surfaceParPiece'
+                placeholder='Stock initial disponible'
+                type='number'
+                min={0}
+                step={0.001}
+                className='form-control border-1 border-dark'
+                id='surfaceParPiece'
+                onChange={validation.handleChange}
+                onBlur={validation.handleBlur}
+                value={validation.values.surfaceParPiece || 0}
+                invalid={
+                  validation.touched.surfaceParPiece &&
+                  validation.errors.surfaceParPiece
+                    ? true
+                    : false
+                }
+              />
+            </FormGroup>
+          </Col>
+          <Col md='4'>
+            <FormGroup className='mb-3'>
+              <Label htmlFor='piecesParCarton'>Pièce/Carton</Label>
+              <Input
+                name='piecesParCarton'
+                placeholder='Nombre de pièces dans le carton'
+                type='number'
+                className='form-control border-1 border-dark'
+                id='piecesParCarton'
+                onChange={validation.handleChange}
+                onBlur={validation.handleBlur}
+                value={validation.values.piecesParCarton || 0}
+                invalid={
+                  validation.touched.piecesParCarton &&
+                  validation.errors.piecesParCarton
+                    ? true
+                    : false
+                }
+              />
+            </FormGroup>
+          </Col>
+          <Col md='4'>
+            <FormGroup className='mb-3'>
+              <Label htmlFor='surfaceParCarton'>m²/Carton</Label>
+              <Input
+                name='surfaceParCarton'
+                placeholder='Entrez les prix de produit'
+                type='number'
+                step={0.001}
+                className='form-control border-1 border-dark'
+                id='surfaceParCarton'
+                onChange={validation.handleChange}
+                onBlur={validation.handleBlur}
+                value={validation.values.surfaceParCarton || 0}
+                invalid={
+                  validation.touched.surfaceParCarton &&
+                  validation.errors.surfaceParCarton
+                    ? true
+                    : false
+                }
+              />
+            </FormGroup>
+          </Col>
+        </Row>
+      )}
       <Row>
         <Col md='12'>
           <FormGroup className='mb-3'>

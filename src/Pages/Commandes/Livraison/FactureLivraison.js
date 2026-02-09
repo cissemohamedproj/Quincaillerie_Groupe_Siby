@@ -7,6 +7,10 @@ import html2pdf from 'html2pdf.js';
 import { useRef } from 'react';
 import { useReactToPrint } from 'react-to-print';
 import FactureHeader from '../Details/FactureHeader';
+import {
+  calculerCarreaux,
+  calculerConversionM2,
+} from '../../components/converFunction';
 
 const FactureLivraison = ({
   show_modal,
@@ -121,30 +125,66 @@ const FactureLivraison = ({
                 <CardTitle>
                   {capitalizeWords('Situation des Articles :')}
                 </CardTitle>
-                <div className='my-3'>
-                  {delivredProducts?.map((item) => (
-                    <div key={item?.produit} className='text-center my-2'>
-                      <p className='font-size-13'>
-                        <strong className='text-muted'>
-                          {capitalizeWords(item?.produit)}:{' '}
-                        </strong>
-                        <span className='text-success'>
-                          {' '}
-                          {formatPrice(item?.quantityLivree)}
-                        </span>{' '}
-                        Livré sur{' '}
-                        <span className='text-warning'>
-                          {' '}
-                          {formatPrice(item?.quantityCommandee)}
-                        </span>{' '}
-                        Commandé
-                        <span className='text-danger mx-3'>
-                          Restant: {formatPrice(item?.quantityRestante)}
-                        </span>{' '}
-                      </p>
-                    </div>
-                  ))}
-                </div>
+                <table className='table align-middle font-size-10  border-all border-2 border-secondary table-nowrap table-hover text-center text-center my-2'>
+                  <thead className='table-light'>
+                    <tr>
+                      <th>Article</th>
+                      <th>Commandé</th>
+                      <th>Livré</th>
+                      <th>Restant</th>
+                    </tr>
+                  </thead>
+                  <tbody className='list'>
+                    {delivredProducts?.map((item) => {
+                      const conver = calculerConversionM2(
+                        item.quality,
+                        item.produit.surfaceParPiece,
+                        item.produit.piecesParCarton
+                      );
+
+                      const converResult = calculerCarreaux(
+                        item.quantityCommandee,
+                        item.produit
+                      );
+                      const productCategory =
+                        item.produit.category === 'Carreaux';
+                      return (
+                        <tr key={item?.produit._id}>
+                          <td>{capitalizeWords(item?.produit.name)}</td>
+                          <td>
+                            {formatPrice(item?.quantityCommandee)}
+                            {productCategory && ' ²m'}
+                            {productCategory && converResult.cartons > 0 && (
+                              <p>
+                                = {productCategory && converResult.cartons}{' '}
+                                cartons et{' '}
+                                {converResult.piecesSupplementaires > 0 &&
+                                  converResult.piecesSupplementaires +
+                                    ' pièces'}
+                              </p>
+                            )}
+                          </td>
+                          <td>
+                            {formatPrice(item?.quantityLivree)}
+                            {productCategory && ' ²m'}
+                            {productCategory && converResult.cartons > 0 && (
+                              <p>
+                                = {converResult.cartons} cartons et
+                                {conver.cartons > 0 &&
+                                  conver.piecesSupplementaires + ' pièces'}
+                              </p>
+                            )}
+                          </td>
+
+                          <td>
+                            {formatPrice(item?.quantityRestante)}
+                            {productCategory && ' ²m'}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
               </div>
             </CardBody>
           </Card>

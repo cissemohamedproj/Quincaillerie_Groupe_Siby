@@ -36,6 +36,7 @@ import ProfileDetail from '../Pages/Authentication/ProfileDetail.js';
 import Bilans from '../Pages/Bilans/Bilans.js';
 import TopProduits from '../Pages/Produits/TopProduits.js';
 import DevisDetails from '../Pages/Devis/DevisDetails.js';
+import ListeBon from '../Pages/Bon/ListeBon.js';
 
 const sharedRoutes = [
   // Produit de la Boutique
@@ -92,6 +93,7 @@ const authProtectedRoutes = [
 
   // Dépenses
   { path: '/depenses', component: <DepenseListe /> },
+  { path: '/bons', component: <ListeBon /> },
 
   // Profile
   { path: '/userprofile', component: <UserProfile /> },

@@ -90,12 +90,22 @@ const SidebarData = [
     isMainMenu: true,
   },
   {
-    label: 'Devis',
-    icon: 'fas fa-question',
-    subItem: [
-      { sublabel: 'Nouveau Devis', link: '/newDevis' },
-      { sublabel: 'Historique de Devis', link: '/devisListe' },
-    ],
+    label: 'Bon de Réception',
+    icon: 'fas fa-receipt',
+    isHasArrow: true,
+    url: '/bons',
+  },
+  {
+    label: 'Nouveau Devis',
+    icon: 'fas fa-file',
+    isHasArrow: true,
+    url: '/newDevis',
+  },
+  {
+    label: 'Historique de Devis',
+    icon: 'fas fa-memory',
+    isHasArrow: true,
+    url: '/devisListe',
   },
 
   // ----------------------------------------------------------------------

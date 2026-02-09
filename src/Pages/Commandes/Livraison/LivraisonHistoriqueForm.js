@@ -32,6 +32,11 @@ const LivraisonHistoriqueForm = ({
   // Récuperation de ID dans URL en utilisant UsParams
   const selectedCommande = useParams();
 
+  const [selectedProducts, setSelectedProducts] = useState();
+  const [cartons, setCartons] = useState(0);
+  const [piecesSup, setPieceSup] = useState(0);
+  // State pour gérer le chargement
+  const [isLoading, setIsLoading] = useState(false);
   // Paiement Query pour créer la Paiement
   const { mutate: createLivraisonHistorique } = useCreateLivraisonHistorique();
 
@@ -48,8 +53,6 @@ const LivraisonHistoriqueForm = ({
     error: commandeDataError,
   } = useOneCommande(selectedCommande.id);
 
-  // State pour gérer le chargement
-  const [isLoading, setIsLoading] = useState(false);
   // ------------------------------------------------------------------------
   // Form validation
   const validation = useFormik({
@@ -59,13 +62,13 @@ const LivraisonHistoriqueForm = ({
     initialValues: {
       commande:
         selectedLivraisonToUpdate?.commande?._id || selectedCommande?.id,
-      produit: selectedLivraisonToUpdate?.produit || '',
+      produitID: selectedLivraisonToUpdate?.produitID || undefined,
       quantity: selectedLivraisonToUpdate?.quantity || 0,
       livraisonDate:
         selectedLivraisonToUpdate?.livraisonDate?.substring(0, 10) || undefined,
     },
     validationSchema: Yup.object({
-      produit: Yup.string().required('Ce champ est obligatoire'),
+      produitID: Yup.string().required('Ce champ est obligatoire'),
       quantity: Yup.string().required('Ce champ est obligatoire'),
       livraisonDate: Yup.date().required('Ce champ est obligatoire'),
     }),
@@ -130,18 +133,66 @@ const LivraisonHistoriqueForm = ({
     },
   });
 
+  function calculerConversionM2(quantityM2, surfaceParPiece, piecesParCarton) {
+    const surfaceParCarton = surfaceParPiece * piecesParCarton;
+
+    const cartons = Math.floor(quantityM2 / surfaceParCarton);
+
+    const resteM2 = quantityM2 - cartons * surfaceParCarton;
+
+    const piecesSupplementaires =
+      resteM2 > 0 ? Math.ceil(resteM2 / surfaceParPiece) : 0;
+
+    return {
+      cartons,
+      piecesSupplementaires,
+    };
+  }
+
+  useEffect(() => {
+    const quantity = validation.values.quantity;
+    if (!selectedProducts || selectedProducts.produit.category !== 'Carreaux')
+      return;
+    // if (quantity > 0) {
+    const result = calculerConversionM2(
+      quantity,
+      selectedProducts.produit.surfaceParPiece,
+      selectedProducts.produit.piecesParCarton
+    );
+
+    setCartons(result.cartons);
+    setPieceSup(result.piecesSupplementaires);
+    // }
+  }, [validation.values.quantity, selectedProducts]);
+
+  // -----------------------------------------------------------------------------------
+  // -----------------------------------------------------------------------------------
+  // -----------------------------------------------------------------------------------
+  // -----------------------------------------------------------------------------------
+  // -----------------------------------------------------------------------------------
+  // -----------------------------------------------------------------------------------
+  // -----------------------------------------------------------------------------------
+  // -----------------------------------------------------------------------------------
+  // -----------------------------------------------------------------------------------
   // Trouver la quantité de PRODUIT sélectionné dans la liste
   const [maxQuantity, setMaxQuantity] = useState(validation.values.quantity);
   useEffect(() => {
     // Selected Item
     const selectedItem = selectedCommandeData?.commandeData?.items?.find(
-      (it) => it?.produit?.name === validation.values.produit
+      (it) => it?.produit?._id === validation.values.produitID
     );
+
+    if (!validation.values.produitID || validation.values.produitID === null) {
+      setSelectedProducts(undefined);
+      validation.setFieldValue('quantity', 0);
+      return;
+    }
+    setSelectedProducts(selectedItem);
 
     // Selected Item Produit qui se trouve dans Livraison Historique data pour calculer le total de Quantité Livrés
     const historiqueProduitInCommande = livraisonHistoriqueData?.filter(
       (data) => {
-        return data?.produit.includes(validation.values.produit);
+        return data?.produit?._id === validation.values.produitID;
       }
     );
     // Calculer la somme total de Quantité de produit sélectionné
@@ -149,10 +200,9 @@ const LivraisonHistoriqueForm = ({
       (acc, item) => (acc += item.quantity),
       0
     );
-
-    if (selectedItem) {
+    if (selectedProducts) {
       // Quantité de Produit sélectionné
-      const selectedItemQuantity = selectedItem?.quantity;
+      const selectedItemQuantity = selectedProducts?.quantity;
       // Si le bouton modifier est cliqué alors on affiche la Quantité Livré SINON on Soustraire la Quantité Livré au Quantité restante
       const quantityToDelivry = selectedLivraisonToUpdate
         ? selectedLivraisonToUpdate?.quantity
@@ -166,11 +216,11 @@ const LivraisonHistoriqueForm = ({
   }, [
     selectedLivraisonToUpdate,
     selectedCommandeData,
-    validation.values.produit,
+    validation.values.produitID,
     livraisonHistoriqueData,
+    selectedProducts,
   ]);
 
-  // console.log('Validation Quantité: ', validation.values.quantity);
   // Affichage des champs de Formulaire
   return (
     <Form
@@ -192,19 +242,19 @@ const LivraisonHistoriqueForm = ({
         {!commandeDataError && !fetchingCommande && (
           <Col sm={12}>
             <FormGroup className='mb-3'>
-              <Label htmlFor='produit'>Produit</Label>
+              <Label htmlFor='produitID'>Produit</Label>
 
               <Input
-                name='produit'
+                name='produitID'
                 type='select'
                 placeholder='Produit'
                 className='form-control border-1 border-dark'
-                id='produit'
+                id='produitID'
                 onChange={validation.handleChange}
                 onBlur={validation.handleBlur}
-                value={validation.values.produit || ''}
+                value={validation.values.produitID || ''}
                 invalid={
-                  validation.touched.produit && validation.errors.produit
+                  validation.touched.produitID && validation.errors.produitID
                     ? true
                     : false
                 }
@@ -212,23 +262,28 @@ const LivraisonHistoriqueForm = ({
                 <option value=''>Sélectionner un Produit</option>
 
                 {selectedLivraisonToUpdate ? (
-                  <option value={selectedLivraisonToUpdate?.produit}>
-                    {capitalizeWords(selectedLivraisonToUpdate?.produit)}
+                  <option
+                    value={
+                      selectedLivraisonToUpdate?.produit ||
+                      selectedLivraisonToUpdate?.produitID?._id
+                    }
+                  >
+                    {capitalizeWords(selectedLivraisonToUpdate?.produit) ??
+                      capitalizeWords(
+                        selectedLivraisonToUpdate?.produitID?._id
+                      )}
                   </option>
                 ) : (
                   selectedCommandeData?.commandeData?.items?.map((item) => (
-                    <option
-                      key={item?.produit?._id}
-                      value={item?.produit?.name}
-                    >
-                      {capitalizeWords(item?.produit?.name)}{' '}
+                    <option key={item?.produit?._id} value={item?.produit?._id}>
+                      {capitalizeWords(item?.produit?.name)}
                     </option>
                   ))
                 )}
               </Input>
-              {validation.touched.produit && validation.errors.produit ? (
+              {validation.touched.produitID && validation.errors.produitID ? (
                 <FormFeedback type='invalid'>
-                  {validation.errors.produit}
+                  {validation.errors.produitID}
                 </FormFeedback>
               ) : null}
             </FormGroup>
@@ -236,7 +291,14 @@ const LivraisonHistoriqueForm = ({
         )}
       </Row>
       <Row>
-        <Col sm={12}>
+        <Col
+          sm={
+            validation.values.produitID !== '' &&
+            selectedProducts?.produit.category === 'Carreaux'
+              ? 6
+              : 12
+          }
+        >
           <FormGroup className='mb-3'>
             <Label htmlFor='quantity'>
               {' '}
@@ -268,6 +330,21 @@ const LivraisonHistoriqueForm = ({
               </FormFeedback>
             ) : null}
           </FormGroup>
+        </Col>
+        <Col sm={3}>
+          {selectedProducts &&
+            selectedProducts?.produit.category === 'Carreaux' && (
+              <div className='d-flex justify-content-center flex-wrap'>
+                <p>
+                  Carton : <span className='text-info'>{cartons} </span>
+                </p>
+                {piecesSup > 0 && (
+                  <p>
+                    Pièce Supp : <span className='text-info'>{piecesSup} </span>
+                  </p>
+                )}
+              </div>
+            )}
         </Col>
       </Row>
       <Row>
