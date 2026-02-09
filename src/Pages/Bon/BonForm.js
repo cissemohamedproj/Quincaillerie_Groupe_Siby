@@ -11,14 +11,12 @@ import {
 import * as Yup from 'yup';
 import { useFormik } from 'formik';
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
 import { useCreateBon, useUpdateBon } from '../../Api/queriesBon';
 import {
   errorMessageAlert,
   successMessageAlert,
 } from '../components/AlerteModal';
-import { calculerConversionM2 } from '../components/converFunction';
-import { capitalizeWords, formatPrice } from '../components/capitalizeFunction';
+import { formatPrice } from '../components/capitalizeFunction';
 import LoadingSpiner from '../components/LoadingSpiner';
 
 const BonForm = ({ selectedBonToUpdate, tog_form_modal }) => {
@@ -149,7 +147,8 @@ const BonForm = ({ selectedBonToUpdate, tog_form_modal }) => {
       return setTotal(0);
     }
 
-    const amount = qty * pr;
+    const amount = Math.floor(qty * pr);
+    validation.setFieldValue('totalAmount', amount);
     setTotal(amount);
   }, [validation.values.quantity, validation.values.price]);
   // -----------------------------------------------------------------------------------
@@ -249,6 +248,7 @@ const BonForm = ({ selectedBonToUpdate, tog_form_modal }) => {
               className='form-control border-1 border-dark'
               id='quantity'
               min={1}
+              step={0.0001}
               onChange={validation.handleChange}
               onBlur={validation.handleBlur}
               value={validation.values.quantity || 0}
@@ -354,7 +354,7 @@ const BonForm = ({ selectedBonToUpdate, tog_form_modal }) => {
                 placeholder='Entrez le nombre de cartons correspondant'
                 className='form-control border-1 border-dark'
                 id='cartons'
-                min={1}
+                min={0}
                 onChange={validation.handleChange}
                 onBlur={validation.handleBlur}
                 value={validation.values.cartons || 0}
@@ -382,7 +382,7 @@ const BonForm = ({ selectedBonToUpdate, tog_form_modal }) => {
                 className='form-control border-1 border-dark'
                 placeholder='Entrez le nombre des pièces supplémentaire'
                 id='piecesSup'
-                min={1}
+                min={0}
                 onChange={validation.handleChange}
                 onBlur={validation.handleBlur}
                 value={validation.values.piecesSup || 0}

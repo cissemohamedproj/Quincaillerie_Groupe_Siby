@@ -33,22 +33,30 @@ export default function ProduitListe() {
     useDeleteProduit();
   const [produitToUpdate, setProduitToUpdate] = useState(null);
   const [formModalTitle, setFormModalTitle] = useState('Ajouter un Produit');
+  const [selectedCategory, setSelectedCategory] = useState(null);
 
   // Recherche State
   const [searchTerm, setSearchTerm] = useState('');
 
   // Fontion pour Rechercher
-  const filterSearchProduits = produits?.filter((prod) => {
-    const search = searchTerm.toLowerCase();
+  const filterSearchProduits = produits
+    ?.filter((prod) => {
+      const search = searchTerm.toLowerCase();
 
-    return (
-      prod?.stock > 0 &&
-      (prod?.name?.toLowerCase().includes(search) ||
-        prod?.category?.toLowerCase().includes(search) ||
-        prod?.stock?.toString().includes(search) ||
-        prod?.price?.toString().includes(search))
-    );
-  });
+      return (
+        prod?.stock > 0 &&
+        (prod?.name?.toLowerCase().includes(search) ||
+          prod?.category?.toLowerCase().includes(search) ||
+          prod?.stock?.toString().includes(search) ||
+          prod?.price?.toString().includes(search))
+      );
+    })
+    ?.filter((item) => {
+      if (selectedCategory !== null) {
+        return item.category === selectedCategory;
+      }
+      return true;
+    });
 
   // Utilisation de useNavigate pour la navigation
   const navigate = useNavigate();
@@ -138,6 +146,29 @@ export default function ProduitListe() {
                         </div>
                       </Col>
                     </Row>
+
+                    <div className='d-flex flex-wrap justify-content-center align-items-center gap-5'>
+                      <div className='d-flex gap-2 justify-content-center align-items-center my-3 '>
+                        <h6>Catégorie </h6>
+                        <select
+                          value={selectedCategory ?? ''}
+                          onChange={(e) => {
+                            const v = e.target.value;
+                            setSelectedCategory(v === '' ? null : v);
+                          }}
+                          className='form-select border border-dark rounded '
+                          style={{ cursor: 'pointer' }}
+                        >
+                          <option value=''>Toutes</option>
+                          <option value='Construction'>Construction</option>
+                          <option value='Décoration'>Décoration</option>
+                          <option value='Carreaux'>Carreaux</option>
+                          <option value='Plomberie'>Plomberie</option>
+                          <option value='Métalique'>Métalique</option>
+                          <option value='Electricité'>Electricité</option>
+                        </select>
+                      </div>
+                    </div>
                   </div>
                 </CardBody>
               </Card>

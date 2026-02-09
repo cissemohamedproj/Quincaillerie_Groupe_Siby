@@ -135,46 +135,40 @@ export default function LivraisonHistorique({ id, commandeItems }) {
                 </CardTitle>
                 <CardBody>
                   <div id='Livraison HistoriqueList'>
-                    {commandeItems?.statut !== 'livré' && (
-                      <Button
-                        color='secondary'
-                        className='add-btn my-4 text-center d-flex justify-content-center align-items-center'
-                        id='create-btn'
-                        onClick={() => {
-                          setSelectedLivraison(
-                            livraisonHistoriqueData[0]?.commande
-                          );
-                          setLastLivraisonDate(livraisonHistoriqueData[0]);
+                    <Button
+                      color='secondary'
+                      className='add-btn my-4 text-center d-flex justify-content-center align-items-center'
+                      id='create-btn'
+                      onClick={() => {
+                        setSelectedLivraison(
+                          livraisonHistoriqueData[0]?.commande
+                        );
+                        setLastLivraisonDate(livraisonHistoriqueData[0]);
 
-                          tog_facture_modal();
-                        }}
-                      >
-                        <i className='bx bx-show align-center me-1'></i> Reçue
-                        de Livraison
-                      </Button>
-                    )}
+                        tog_facture_modal();
+                      }}
+                    >
+                      <i className='bx bx-show align-center me-1'></i> Bon de
+                      Livraison
+                    </Button>
                     <Row className='g-4 mb-3 justify-content-between align-items-center'>
-                      {connectedUserRole === 'admin' &&
-                        connectedUserBoutique ===
-                          commandeItems?.user?.boutique && (
-                          <Col className='col-sm-auto'>
-                            <div className='d-flex gap-1'>
-                              <Button
-                                color='info'
-                                className='add-btn'
-                                id='create-btn'
-                                onClick={() => {
-                                  setLivraisonToUpdate(null);
-                                  setFormTitle('Ajouter une Livraison');
-                                  tog_form_modal();
-                                }}
-                              >
-                                <i className='fas fa-plus align-center me-1'></i>{' '}
-                                Ajouter une Livraison
-                              </Button>
-                            </div>
-                          </Col>
-                        )}
+                      <Col className='col-sm-auto'>
+                        <div className='d-flex gap-1'>
+                          <Button
+                            color='info'
+                            className='add-btn'
+                            id='create-btn'
+                            onClick={() => {
+                              setLivraisonToUpdate(null);
+                              setFormTitle('Ajouter une Livraison');
+                              tog_form_modal();
+                            }}
+                          >
+                            <i className='fas fa-plus align-center me-1'></i>{' '}
+                            Ajouter une Livraison
+                          </Button>
+                        </div>
+                      </Col>
                       <Col className='col-sm-auto'>
                         <div className='d-flex justify-content-sm-end gap-2'>
                           {searchTerm !== '' && (
@@ -198,32 +192,31 @@ export default function LivraisonHistorique({ id, commandeItems }) {
                       </Col>
                     </Row>
                     <div className='col-sm-auto'>
-                      {commandeItems?.statut !== 'livré' &&
-                        productDelivredResult?.map((item) => (
-                          <div
-                            key={item?.produit._id}
-                            className='text-center my-2'
-                          >
-                            <p className='font-size-13'>
-                              <strong className='text-muted'>
-                                {capitalizeWords(item?.produit.name)}:{' '}
-                              </strong>
-                              <span className='text-success'>
-                                {' '}
-                                {formatPrice(item?.quantityLivree)}
-                              </span>{' '}
-                              Livré sur{' '}
-                              <span className='text-warning'>
-                                {' '}
-                                {formatPrice(item?.quantityCommandee)}
-                              </span>{' '}
-                              Commandé
-                              <span className='text-danger mx-3'>
-                                Restant: {formatPrice(item?.quantityRestante)}
-                              </span>{' '}
-                            </p>
-                          </div>
-                        ))}
+                      {productDelivredResult?.map((item) => (
+                        <div
+                          key={item?.produit._id}
+                          className='text-center my-2'
+                        >
+                          <p className='font-size-13'>
+                            <strong className='text-muted'>
+                              {capitalizeWords(item?.produit.name)}:{' '}
+                            </strong>
+                            <span className='text-success'>
+                              {' '}
+                              {formatPrice(item?.quantityLivree)}
+                            </span>{' '}
+                            Livré sur{' '}
+                            <span className='text-warning'>
+                              {' '}
+                              {formatPrice(item?.quantityCommandee)}
+                            </span>{' '}
+                            Commandé
+                            <span className='text-danger mx-3'>
+                              Restant: {formatPrice(item?.quantityRestante)}
+                            </span>{' '}
+                          </p>
+                        </div>
+                      ))}
                     </div>
                     {error && (
                       <div className='text-danger text-center'>
@@ -233,13 +226,6 @@ export default function LivraisonHistorique({ id, commandeItems }) {
                     {isLoading && <LoadingSpiner />}
 
                     <div className='table-responsive table-card mt-3 mb-1'>
-                      {commandeItems?.statut === 'livré' && (
-                        <div className='text-center text-success mt-4'>
-                          <strong className='font-size-18'>
-                            Commande Livrée !
-                          </strong>
-                        </div>
-                      )}
                       {filterSearchLivraisonHistorique?.length === 0 &&
                         commandeItems?.statut !== 'livré' && (
                           <div className='text-center text-mutate mt-4'>
@@ -313,57 +299,58 @@ export default function LivraisonHistorique({ id, commandeItems }) {
                                           {categoryType === 'Carreaux' && ' m²'}
                                           {categoryType === 'Carreaux' && (
                                             <p>
-                                              = ({result.cartons} cartons) et{' '}
-                                              {result.piecesSupplementaires}{' '}
-                                              pièces{' '}
+                                              = ({result.cartons} cartons){' '}
+                                              {result.piecesSupplementaires >
+                                                0 &&
+                                                ` et ${result.piecesSupplementaires} pièces`}
                                             </p>
                                           )}
                                         </td>
 
-                                        {connectedUserRole === 'admin' &&
+                                        {/* {connectedUserRole === 'admin' &&
                                           connectedUserBoutique ===
-                                            commandeItems?.user?.boutique && (
-                                            <td>
-                                              {isDeleting && <LoadingSpiner />}
-                                              {!isDeleting && (
-                                                <div className='d-flex gap-2 justify-content-center alitgn-items-center'>
-                                                  <div>
-                                                    <button
-                                                      className='btn btn-sm btn-warning show-item-btn'
-                                                      onClick={() => {
-                                                        setLivraisonToUpdate(
-                                                          livraison
-                                                        );
-                                                        setFormTitle(
-                                                          'Modifier la Livraison'
-                                                        );
-                                                        tog_form_modal();
-                                                      }}
-                                                    >
-                                                      <i className='bx bx-pencil align-center text-white'></i>
-                                                    </button>
-                                                  </div>
+                                            commandeItems?.user?.boutique && ( */}
+                                        <td>
+                                          {isDeleting && <LoadingSpiner />}
+                                          {!isDeleting && (
+                                            <div className='d-flex gap-2 justify-content-center alitgn-items-center'>
+                                              <div>
+                                                <button
+                                                  className='btn btn-sm btn-warning show-item-btn'
+                                                  onClick={() => {
+                                                    setLivraisonToUpdate(
+                                                      livraison
+                                                    );
+                                                    setFormTitle(
+                                                      'Modifier la Livraison'
+                                                    );
+                                                    tog_form_modal();
+                                                  }}
+                                                >
+                                                  <i className='bx bx-pencil align-center text-white'></i>
+                                                </button>
+                                              </div>
 
-                                                  <div className='remove'>
-                                                    <button
-                                                      className='btn btn-sm btn-danger remove-item-btn'
-                                                      onClick={() => {
-                                                        deleteButton(
-                                                          livraison?._id,
-                                                          livraison?.produit ||
-                                                            livraison.produitID
-                                                              ?.name,
-                                                          deleteLivraisonHistorique
-                                                        );
-                                                      }}
-                                                    >
-                                                      <i className='ri-delete-bin-fill text-white'></i>
-                                                    </button>
-                                                  </div>
-                                                </div>
-                                              )}
-                                            </td>
+                                              <div className='remove'>
+                                                <button
+                                                  className='btn btn-sm btn-danger remove-item-btn'
+                                                  onClick={() => {
+                                                    deleteButton(
+                                                      livraison?._id,
+                                                      livraison?.produit ||
+                                                        livraison.produitID
+                                                          ?.name,
+                                                      deleteLivraisonHistorique
+                                                    );
+                                                  }}
+                                                >
+                                                  <i className='ri-delete-bin-fill text-white'></i>
+                                                </button>
+                                              </div>
+                                            </div>
                                           )}
+                                        </td>
+                                        {/* )} */}
                                       </tr>
                                     );
                                   }

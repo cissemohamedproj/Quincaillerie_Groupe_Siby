@@ -136,8 +136,8 @@ const FactureLivraison = ({
                   </thead>
                   <tbody className='list'>
                     {delivredProducts?.map((item) => {
-                      const conver = calculerConversionM2(
-                        item.quality,
+                      const converQuantityLivree = calculerConversionM2(
+                        item.quantityLivree,
                         item.produit.surfaceParPiece,
                         item.produit.piecesParCarton
                       );
@@ -157,9 +157,10 @@ const FactureLivraison = ({
                             {productCategory && converResult.cartons > 0 && (
                               <p>
                                 = {productCategory && converResult.cartons}{' '}
-                                cartons et{' '}
+                                cartons{' '}
                                 {converResult.piecesSupplementaires > 0 &&
-                                  converResult.piecesSupplementaires +
+                                  ' et ' +
+                                    converResult.piecesSupplementaires +
                                     ' pièces'}
                               </p>
                             )}
@@ -167,13 +168,17 @@ const FactureLivraison = ({
                           <td>
                             {formatPrice(item?.quantityLivree)}
                             {productCategory && ' ²m'}
-                            {productCategory && converResult.cartons > 0 && (
-                              <p>
-                                = {converResult.cartons} cartons et
-                                {conver.cartons > 0 &&
-                                  conver.piecesSupplementaires + ' pièces'}
-                              </p>
-                            )}
+                            {productCategory &&
+                              converQuantityLivree.cartons > 0 && (
+                                <p>
+                                  = {converQuantityLivree.cartons} cartons
+                                  {converQuantityLivree.piecesSupplementaires >
+                                    0 &&
+                                    ' et ' +
+                                      converQuantityLivree.piecesSupplementaires +
+                                      ' pièces'}
+                                </p>
+                              )}
                           </td>
 
                           <td>

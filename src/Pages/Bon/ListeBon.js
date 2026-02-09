@@ -25,10 +25,10 @@ import FormModal from '../components/FormModal';
 import BonForm from './BonForm';
 import BonFacture from './BonFacture';
 
-export default function ListeBon({ id, commandeItems }) {
+export default function ListeBon() {
   const [form_modal, setForm_modal] = useState(false);
   // Récupération des Historiques de Bon
-  const { data: bonData, isLoading, error } = useAllBon(id);
+  const { data: bonData, isLoading, error } = useAllBon();
 
   // State pour supprimer le Bon
   const { mutate: deleteBon, isDeleting } = useDeleteBon();
@@ -178,11 +178,8 @@ export default function ListeBon({ id, commandeItems }) {
                               <th>Total</th>
                               <th>Fournisseur</th>
                               <th>Contact</th>
-                              {connectedUserRole === 'admin' &&
-                                connectedUserBoutique ===
-                                  commandeItems?.user?.boutique && (
-                                  <th data-sort='action'>Action</th>
-                                )}
+
+                              <th data-sort='action'>Action</th>
                             </tr>
                           </thead>
 
@@ -229,9 +226,9 @@ export default function ListeBon({ id, commandeItems }) {
                                       {item?.quantity} {item.qtyType}
                                       {categoryType && (
                                         <p>
-                                          {item?.cartons} cartons et{' '}
+                                          {item?.cartons} cartons{' '}
                                           {item?.piecesSup > 0 &&
-                                            item?.piecesSup}{' '}
+                                            ' et ' + item?.piecesSup}{' '}
                                           pièces
                                         </p>
                                       )}
@@ -248,7 +245,7 @@ export default function ListeBon({ id, commandeItems }) {
                                     </td>
                                     {connectedUserRole === 'admin' &&
                                       connectedUserBoutique ===
-                                        commandeItems?.user?.boutique && (
+                                        item?.user?.boutique && (
                                         <td>
                                           {isDeleting && <LoadingSpiner />}
                                           {!isDeleting && (

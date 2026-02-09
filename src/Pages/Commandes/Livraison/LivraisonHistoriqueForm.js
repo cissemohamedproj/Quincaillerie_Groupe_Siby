@@ -24,13 +24,14 @@ import {
   useUpdateLivraisonHistorique,
 } from '../../../Api/queriesLivraisonHistorique';
 import { capitalizeWords } from '../../components/capitalizeFunction';
+import { calculerConversionM2 } from '../../components/converFunction';
 
 const LivraisonHistoriqueForm = ({
   selectedLivraisonToUpdate,
   tog_form_modal,
 }) => {
   // Récuperation de ID dans URL en utilisant UsParams
-  const selectedCommande = useParams();
+  const { id } = useParams();
 
   const [selectedProducts, setSelectedProducts] = useState();
   const [cartons, setCartons] = useState(0);
@@ -43,15 +44,13 @@ const LivraisonHistoriqueForm = ({
   // Mettre à jours une Livraison
   const { mutate: updateLivraison } = useUpdateLivraisonHistorique();
 
-  const { data: livraisonHistoriqueData } = useAllLivraisonHistorique(
-    selectedCommande.id
-  );
+  const { data: livraisonHistoriqueData } = useAllLivraisonHistorique(id);
   // Query pour affiche toutes les selectedCommandeData
   const {
     data: selectedCommandeData,
     isLoading: fetchingCommande,
     error: commandeDataError,
-  } = useOneCommande(selectedCommande.id);
+  } = useOneCommande(id);
 
   // ------------------------------------------------------------------------
   // Form validation
@@ -60,12 +59,12 @@ const LivraisonHistoriqueForm = ({
     enableReinitialize: true,
 
     initialValues: {
-      commande:
-        selectedLivraisonToUpdate?.commande?._id || selectedCommande?.id,
+      commande: selectedLivraisonToUpdate?.commande?._id || id,
       produitID: selectedLivraisonToUpdate?.produitID || undefined,
       quantity: selectedLivraisonToUpdate?.quantity || 0,
       livraisonDate:
-        selectedLivraisonToUpdate?.livraisonDate?.substring(0, 10) || undefined,
+        selectedLivraisonToUpdate?.livraisonDate?.substring(0, 10) ||
+        new Date().toISOString().substring(0, 10),
     },
     validationSchema: Yup.object({
       produitID: Yup.string().required('Ce champ est obligatoire'),
@@ -105,7 +104,7 @@ const LivraisonHistoriqueForm = ({
       } else {
         // on ajoute le paiements dans l'historique
         createLivraisonHistorique(
-          { ...values, commande: selectedCommande.id },
+          { ...values, commande: id },
           {
             onSuccess: () => {
               successMessageAlert('Livraison ajoutée avec succès');
@@ -132,22 +131,6 @@ const LivraisonHistoriqueForm = ({
       }, 10000);
     },
   });
-
-  function calculerConversionM2(quantityM2, surfaceParPiece, piecesParCarton) {
-    const surfaceParCarton = surfaceParPiece * piecesParCarton;
-
-    const cartons = Math.floor(quantityM2 / surfaceParCarton);
-
-    const resteM2 = quantityM2 - cartons * surfaceParCarton;
-
-    const piecesSupplementaires =
-      resteM2 > 0 ? Math.ceil(resteM2 / surfaceParPiece) : 0;
-
-    return {
-      cartons,
-      piecesSupplementaires,
-    };
-  }
 
   useEffect(() => {
     const quantity = validation.values.quantity;
@@ -192,14 +175,20 @@ const LivraisonHistoriqueForm = ({
     // Selected Item Produit qui se trouve dans Livraison Historique data pour calculer le total de Quantité Livrés
     const historiqueProduitInCommande = livraisonHistoriqueData?.filter(
       (data) => {
-        return data?.produit?._id === validation.values.produitID;
+        return (
+          data?.produitID?._id === validation.values.produitID ||
+          data?.produit === selectedItem.produit.name
+        );
       }
     );
+    // data?.produit?._id === validation.values.produitID ||
+
     // Calculer la somme total de Quantité de produit sélectionné
     const totalQuantityDelivry = historiqueProduitInCommande?.reduce(
       (acc, item) => (acc += item.quantity),
       0
     );
+
     if (selectedProducts) {
       // Quantité de Produit sélectionné
       const selectedItemQuantity = selectedProducts?.quantity;
