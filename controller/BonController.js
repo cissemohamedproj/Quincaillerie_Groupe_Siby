@@ -34,7 +34,7 @@ exports.updateBon = async (req, res) => {
 
 exports.getAllBon = async (req, res) => {
   try {
-    const result = await Bon.find().sort({ createdAt: -1 });
+    const result = await Bon.find().populate('user').sort({ createdAt: -1 });
 
     return res.status(200).json(result);
   } catch (e) {
@@ -45,8 +45,7 @@ exports.getAllBon = async (req, res) => {
 exports.getBon = async (req, res) => {
   try {
     const { id } = req.params;
-    const result = await Bon.findById(id);
-
+    const result = await Bon.findById(id).populate('user');
     return res.status(200).json(result);
   } catch (e) {
     console.log(e);

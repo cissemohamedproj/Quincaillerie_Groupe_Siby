@@ -31,8 +31,14 @@ exports.updateLivraisonHistorique = async (req, res) => {
 // Afficher la liste des Livraison
 exports.getAllLivraisonHistorique = async (req, res) => {
   try {
+    const { id } = req.params;
+
+    const commande = await Commande.findById(id)
+      .populate('items.produit')
+      .populate('user');
+
     const livraison = await LivraisonHistorique.find({
-      commande: req.params.id,
+      commande: commande,
     })
       .populate('user')
       .populate('produitID')
@@ -43,9 +49,6 @@ exports.getAllLivraisonHistorique = async (req, res) => {
       .sort({ createdAt: -1 });
 
     // Vérfion pour chaque produit livré si la quantité livré correspond au quantité commandée alors on met à jours le status de commande par "Livré"
-    const commande = await Commande.findById(req.params.id)
-      .populate('items.produit')
-      .populate('user');
     const totalCommandeQuantity = commande.items.reduce((acc, item) => {
       return acc + item.quantity;
     }, 0);
@@ -56,8 +59,8 @@ exports.getAllLivraisonHistorique = async (req, res) => {
     // Si la quantité totale livrée correspond à la quantité totale commandée, on met à jour le statut de la commande
     // et on Sauvegarde le Statut de la commande par "livré"
     if (totalCommandeQuantity === totalLivraisonQuantity) {
-      commande.statut = 'livré';
-      commande.save();
+      commande.commandeData.statut = 'livré';
+      await commande.save();
     }
 
     // console.log(livraison);
