@@ -38,6 +38,9 @@ const commandeSchema = new mongoose.Schema(
           required: [true, 'Le prix client est requise'],
           min: [1, 'Le prix doit être au moins 1'],
         },
+        cartons: Number,
+        pieces: Number,
+        piecesSupplementaires: Number,
       },
     ],
     totalAmount: {

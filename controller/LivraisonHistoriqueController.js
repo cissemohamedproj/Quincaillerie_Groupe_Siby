@@ -1,5 +1,6 @@
 const LivraisonHistorique = require('../models/LivraisonHistoriqueModel');
 const Commande = require('../models/CommandeModel');
+const { populate } = require('../models/ProduitModel');
 
 // Ajouter de Livraison
 exports.createLivraisonHistorique = async (req, res) => {
@@ -34,7 +35,11 @@ exports.getAllLivraisonHistorique = async (req, res) => {
       commande: req.params.id,
     })
       .populate('user')
-      .populate('commande')
+      .populate('produitID')
+      .populate({
+        path: 'commande',
+        populate: [{ path: 'items.produit' }, { path: 'user' }],
+      })
       .sort({ createdAt: -1 });
 
     // Vérfion pour chaque produit livré si la quantité livré correspond au quantité commandée alors on met à jours le status de commande par "Livré"
@@ -54,6 +59,8 @@ exports.getAllLivraisonHistorique = async (req, res) => {
       commande.statut = 'livré';
       commande.save();
     }
+
+    // console.log(livraison);
     return res.status(200).json(livraison);
   } catch (e) {
     console.log(e);
@@ -64,9 +71,13 @@ exports.getAllLivraisonHistorique = async (req, res) => {
 // Afficher une seule Livraison
 exports.getOneLivraisonHistorique = async (req, res) => {
   try {
-    const livraison = await LivraisonHistorique.findById(
-      req.params.id
-    ).populate('user');
+    const livraison = await LivraisonHistorique.findById(req.params.id)
+      .populate('produitID')
+      .populate({
+        path: 'commande',
+        populate: [{ path: 'items.produit' }, { path: 'user' }],
+      })
+      .populate('user');
     return res.status(200).json(livraison);
   } catch (e) {
     return res.status(404).json({ message: e.message });

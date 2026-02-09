@@ -5,6 +5,8 @@ const Produit = require('../models/ProduitModel');
 const PaiementHistorique = require('../models/PaiementHistoriqueModel');
 const LivraisonHistorique = require('../models/LivraisonHistoriqueModel');
 
+const calculerCarreaux = require('../functions/functions');
+
 // Créer une COMMANDE
 exports.createCommande = async (req, res) => {
   const session = await Produit.startSession();
@@ -33,11 +35,30 @@ exports.createCommande = async (req, res) => {
     }
 
     // -----------------------------------------------------------
+    var newItems = [];
+    for (const item of items) {
+      const produit = await Produit.findById(item.produit).session(session);
+
+      if (produit.category === 'Carreaux') {
+        const result = calculerCarreaux(item.quantity, produit);
+
+        // item.cartons = result.cartons;
+        // item.pieces = result.pieces;
+        // item.piecesSupplementaires = result.piecesSupplementaires;
+
+        const cartons = result.cartons;
+        const pieces = result.pieces;
+        const piecesSupplementaires = result.piecesSupplementaires;
+        newItems.push({ ...item, cartons, pieces, piecesSupplementaires });
+      } else {
+        newItems.push(item);
+      }
+    }
 
     // Etape 2 : Créer la COMMANDE
     // Créer une nouvelle commande avec les données fournies
     const newCommande = await Commande.create({
-      items,
+      items: newItems,
       fullName: lowerName,
       adresse: lowerAdresse,
       phoneNumber: formattedPhoneNumber,
@@ -97,12 +118,33 @@ exports.updateCommande = async (req, res) => {
       await prod.save({ session });
     }
 
+    // -----------------------------------------------------------
+    var newItems = [];
+    for (const item of items) {
+      const produit = await Produit.findById(item.produit).session(session);
+
+      if (produit.category === 'Carreaux') {
+        const result = calculerCarreaux(item.quantity, produit);
+
+        // item.cartons = result.cartons;
+        // item.pieces = result.pieces;
+        // item.piecesSupplementaires = result.piecesSupplementaires;
+
+        const cartons = result.cartons;
+        const pieces = result.pieces;
+        const piecesSupplementaires = result.piecesSupplementaires;
+        newItems.push({ ...item, cartons, pieces, piecesSupplementaires });
+      } else {
+        newItems.push(item);
+      }
+    }
+
     // Étape 4 : Mettre à jour la commande
     existingCommande.fullName = fullName || 'non défini';
     existingCommande.phoneNumber = phoneNumber;
     existingCommande.adresse = adresse;
     existingCommande.statut = statut;
-    existingCommande.items = items;
+    existingCommande.items = newItems;
     existingCommande.totalAmount = totalAmount;
 
     await existingCommande.save({ session });

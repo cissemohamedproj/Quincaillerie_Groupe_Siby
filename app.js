@@ -10,6 +10,7 @@ const approvisonementsRoute = require('./routes/ApprovisonementRoute');
 const depenseRoute = require('./routes/DepenseRoute');
 const livraisonHistoriqueRoute = require('./routes/LivraisonHistoriqueRoute');
 const deivisRoute = require('./routes/DevisRoute');
+const bonRoute = require('./routes/bonRoutes');
 
 const nodemailer = require('nodemailer');
 const cors = require('cors');
@@ -67,6 +68,8 @@ app.use('/api/livraison_historique', livraisonHistoriqueRoute);
 
 // Utilisation des routes Depense
 app.use('/api/depenses', depenseRoute);
+
+app.use('/api/bons', bonRoute);
 
 //  Exporter le fichier APP
 module.exports = app;

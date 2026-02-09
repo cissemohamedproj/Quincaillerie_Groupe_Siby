@@ -10,6 +10,11 @@ const livraisonHistoriqueSchema = new mongoose.Schema(
 
     produit: {
       type: String,
+      trim: true,
+    },
+    produitID: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Produit',
       required: true,
       trim: true,
     },
