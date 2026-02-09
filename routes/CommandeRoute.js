@@ -14,6 +14,11 @@ router.post(
 //  Obtenir toutes les Commandes
 router.get('/getAllCommandes', commandeController.getAllCommandes);
 
+router.get(
+  '/getPagignationCommandes',
+  commandeController.getPagignationCommandes
+);
+
 //  Obtenir une Commandes
 router.get('/getOneCommande/:id', commandeController.getOneCommande);
 

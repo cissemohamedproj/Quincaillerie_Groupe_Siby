@@ -80,10 +80,41 @@ exports.updateProduit = async (req, res) => {
 exports.getAllProduits = async (req, res) => {
   try {
     const produits = await Produit.find()
+
       .populate('user')
       .sort({ createdAt: -1 });
 
     return res.status(200).json(produits);
+  } catch (err) {
+    return res.status(400).json({ status: 'error', message: err.message });
+  }
+};
+
+//  Afficher les Produit avec une stock minimum de (1)
+exports.getPagignationProduits = async (req, res) => {
+  try {
+    // 1️⃣ Récupération des paramètres
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 35;
+    const skip = (page - 1) * limit;
+
+    const produits = await Produit.find()
+      .skip(skip)
+      .limit(limit)
+      .populate('user')
+      .sort({ createdAt: -1 });
+
+    const totalPages = await Produit.countDocuments();
+
+    return res.status(200).json({
+      items: {
+        data: produits,
+        page,
+        limit,
+        total: totalPages,
+        totalPages: Math.ceil(totalPages / limit),
+      },
+    });
   } catch (err) {
     return res.status(400).json({ status: 'error', message: err.message });
   }

@@ -165,29 +165,29 @@ exports.updateCommande = async (req, res) => {
 };
 
 // Trouver toutes les commandes
-// exports.getAllCommandes = async (req, res) => {
-//   try {
-//     const commandesListe = await Commande.find()
-//       // Trie par date de création, du plus récent au plus ancien
-//       .sort({ createdAt: -1 })
-//       .populate('items.produit')
-//       .populate('user');
-
-//     // Afficher les COMMANDES en fonction des PAIEMENTS effectués
-//     const factures = await Paiement.find()
-//       .populate({
-//         path: 'commande',
-//         populate: { path: 'items.produit' },
-//       })
-//       .populate('user')
-//       .sort({ createdAt: -1 });
-//     return res.status(201).json({ commandesListe, factures });
-//   } catch (e) {
-//     return res.status(404).json(e);
-//   }
-// };
-
 exports.getAllCommandes = async (req, res) => {
+  try {
+    const commandesListe = await Commande.find()
+      // Trie par date de création, du plus récent au plus ancien
+      .sort({ createdAt: -1 })
+      .populate('items.produit')
+      .populate('user');
+
+    // Afficher les COMMANDES en fonction des PAIEMENTS effectués
+    const factures = await Paiement.find()
+      .populate({
+        path: 'commande',
+        populate: { path: 'items.produit' },
+      })
+      .populate('user')
+      .sort({ createdAt: -1 });
+    return res.status(201).json({ commandesListe, factures });
+  } catch (e) {
+    return res.status(404).json(e);
+  }
+};
+
+exports.getPagignationCommandes = async (req, res) => {
   try {
     // 1️⃣ Récupération des paramètres
     const page = parseInt(req.query.page) || 1;
@@ -208,15 +208,12 @@ exports.getAllCommandes = async (req, res) => {
     // 4️⃣ Factures paginées
     const factures = await Paiement.find()
       .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(limit)
+
       .populate({
         path: 'commande',
         populate: { path: 'items.produit' },
       })
       .populate('user');
-
-    const totalFactures = await Paiement.countDocuments();
 
     // 5️⃣ Réponse structurée
     return res.status(200).json({
@@ -229,10 +226,6 @@ exports.getAllCommandes = async (req, res) => {
       },
       factures: {
         data: factures,
-        page,
-        limit,
-        total: totalFactures,
-        totalPages: Math.ceil(totalFactures / limit),
       },
     });
   } catch (e) {

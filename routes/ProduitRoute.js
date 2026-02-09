@@ -14,6 +14,9 @@ router.post(
 // Afficher une toutes les Produit
 router.get('/getAllProduits', produitController.getAllProduits);
 
+// Afficher une toutes les Produit
+router.get('/getPagignationProduits', produitController.getPagignationProduits);
+
 // Afficher une toutes les Produit sans Stcok
 router.get(
   '/getAllProduitWithStockFinish',
