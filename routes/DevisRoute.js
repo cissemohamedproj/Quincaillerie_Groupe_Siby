@@ -14,6 +14,9 @@ router.post(
 //  Obtenir toutes les Deviss
 router.get('/getAllDevis', devisController.getAllDevis);
 
+//  Obtenir toutes les Devis avec Pagignation
+router.get('/getPagignationDevis', devisController.getPagignationDevis);
+
 //  Obtenir une Deviss
 router.get('/devis_details/:id', devisController.getOneDevis);
 

@@ -35,6 +35,35 @@ exports.getAllDevis = async (req, res) => {
   }
 };
 
+// Trouver toutes les Devis
+exports.getPagignationDevis = async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 35;
+    const skip = (page - 1) * limit;
+
+    const devisListe = await Devis.find()
+      .limit(limit)
+      .skip(skip)
+      .populate('items.produit')
+      .populate('user')
+      .sort({ createdAt: -1 });
+
+    const totalPages = await Devis.countDocuments();
+    return res.status(201).json({
+      results: {
+        data: devisListe,
+        page,
+        limit,
+        total: totalPages,
+        totalPages: Math.ceil(totalPages / limit),
+      },
+    });
+  } catch (e) {
+    return res.status(404).json(e);
+  }
+};
+
 // Trouver une seulle Devis
 exports.getOneDevis = async (req, res) => {
   try {
