@@ -85,6 +85,33 @@ exports.getAllDepenses = async (req, res) => {
   }
 };
 
+// Get all expenses
+exports.getPagignationDepenses = async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 30;
+    const skip = (page - 1) * limit;
+    const depenses = await Depense.find()
+      .limit(limit)
+      .skip(skip)
+      .populate('user')
+      .sort({ dateOfDepense: -1 });
+
+    const totalPages = await Depense.countDocuments();
+    return res.status(200).json({
+      results: {
+        data: depenses,
+        page,
+        limit,
+        total: totalPages,
+        totalPages: Math.ceil(totalPages / limit),
+      },
+    });
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};
+
 // Get a single expense by ID
 exports.getDepenseById = async (req, res) => {
   try {

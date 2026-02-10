@@ -135,6 +135,35 @@ exports.getAllProduitWithStockFinish = async (req, res) => {
   }
 };
 
+//  Afficher une seule Produit avec une stock terminée (0)
+exports.getPagignationProduitWithStockFinish = async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 35;
+    const skip = (page - 1) * limit;
+
+    // Tous les produits dont le stock mximum est 3
+    const produits = await Produit.find({ stock: { $lt: 10 } })
+      .limit(limit)
+      .skip(skip)
+      .populate('user')
+      .sort({ createdAt: -1 });
+
+    const totalPages = await Produit.countDocuments();
+    return res.status(200).json({
+      results: {
+        data: produits,
+        page,
+        limit,
+        total: totalPages,
+        totalPages: Math.ceil(totalPages / limit),
+      },
+    });
+  } catch (err) {
+    return res.status(400).json({ status: 'error', message: err.message });
+  }
+};
+
 //  Afficher une seule Produit
 exports.getOneProduit = async (req, res) => {
   try {

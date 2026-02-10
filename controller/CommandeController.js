@@ -208,12 +208,15 @@ exports.getPagignationCommandes = async (req, res) => {
     // 4️⃣ Factures paginées
     const factures = await Paiement.find()
       .sort({ createdAt: -1 })
-
+      .limit(limit)
+      .skip(skip)
       .populate({
         path: 'commande',
         populate: { path: 'items.produit' },
       })
       .populate('user');
+
+    const totalFactures = await Paiement.countDocuments();
 
     // 5️⃣ Réponse structurée
     return res.status(200).json({
@@ -226,6 +229,10 @@ exports.getPagignationCommandes = async (req, res) => {
       },
       factures: {
         data: factures,
+        page,
+        limit,
+        total: totalFactures,
+        totalPages: Math.ceil(totalFactures / limit),
       },
     });
   } catch (e) {
@@ -383,7 +390,7 @@ exports.getTopProduits = async (req, res) => {
       },
       { $unwind: '$produit' },
       { $sort: { totalQuantity: -1 } }, // tri du plus acheté au moins acheté
-      // { $limit: limit }, // limiter le nombre de résultats
+      { $limit: 50 }, // limiter le nombre de résultats
       {
         $project: {
           _id: 0,

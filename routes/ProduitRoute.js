@@ -23,6 +23,12 @@ router.get(
   produitController.getAllProduitWithStockFinish
 );
 
+// Afficher une toutes les Produit sans Stcok
+router.get(
+  '/getPagignationProduitWithStockFinish',
+  produitController.getPagignationProduitWithStockFinish
+);
+
 // Afficher une seule Produit
 router.get('/getOneProduit/:id', produitController.getOneProduit);
 

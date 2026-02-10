@@ -71,10 +71,48 @@ exports.getAllPaiements = async (req, res) => {
   try {
     const paiements = await Paiement.find()
       .populate('user')
-      .populate({ path: 'commande', populate: [{ path: 'items.produit' }, {path: 'user'}] })
+      .populate({
+        path: 'commande',
+        populate: [{ path: 'items.produit' }, { path: 'user' }],
+      })
       .sort({ createdAt: -1 });
     return res.status(200).json(paiements);
   } catch (err) {
+    res.status(400).json({ status: 'error', message: err.message });
+  }
+};
+
+// Historique des paiements
+exports.getPagignationPaiements = async (req, res) => {
+  try {
+    // 1️⃣ Récupération des paramètres
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 35;
+    const skip = (page - 1) * limit;
+
+    const paiements = await Paiement.find()
+      .limit(limit)
+      .skip(skip)
+      .populate('user')
+      .populate({
+        path: 'commande',
+        populate: [{ path: 'items.produit' }, { path: 'user' }],
+      })
+      .sort({ createdAt: -1 });
+
+    const totalPages = await Paiement.countDocuments();
+
+    return res.status(200).json({
+      results: {
+        data: paiements,
+        page,
+        limit,
+        total: totalPages,
+        totalPages: Math.ceil(totalPages / limit),
+      },
+    });
+  } catch (err) {
+    console.log(err);
     res.status(400).json({ status: 'error', message: err.message });
   }
 };

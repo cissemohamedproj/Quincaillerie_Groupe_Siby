@@ -14,6 +14,12 @@ router.post(
 // Trouvez tous les paiements
 router.get('/getAllPaiements', paiementController.getAllPaiements);
 
+// Trouvez tous les paiements
+router.get(
+  '/getPagignationPaiements',
+  paiementController.getPagignationPaiements
+);
+
 // Trouvez un paiements
 router.get('/getOnePaiement/:id', paiementController.getPaiement);
 
