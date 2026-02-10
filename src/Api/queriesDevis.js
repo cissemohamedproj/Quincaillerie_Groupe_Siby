@@ -26,6 +26,17 @@ export const useAllDevis = () =>
     queryFn: () => api.get('/devis/getAllDevis').then((res) => res.data),
   });
 
+// Lire toutes les Devis avec Pagignation
+export const usePagignationDevis = (page = 1, limit = 35) =>
+  useQuery({
+    queryKey: ['devis', page, limit],
+    queryFn: () =>
+      api
+        .get('/devis/getPagignationDevis', { params: { page, limit } })
+        .then((res) => res.data),
+    keepPreviousData: true,
+  });
+
 // Obtenir un Devis
 export const useOneDevis = (id) =>
   useQuery({

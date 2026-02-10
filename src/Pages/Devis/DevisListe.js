@@ -17,7 +17,7 @@ import {
   formatPrice,
 } from '../components/capitalizeFunction';
 
-import { useAllDevis } from '../../Api/queriesDevis';
+import { usePagignationDevis } from '../../Api/queriesDevis';
 import { useNavigate } from 'react-router-dom';
 import FactureHeader from '../Commandes/Details/FactureHeader';
 import LogoFiligran from '../Commandes/Details/LogoFiligran';
@@ -25,15 +25,21 @@ import { companyName } from '../CompanyInfo/CompanyInfo';
 import { connectedUserBoutique } from '../Authentication/userInfos';
 
 export default function DevisListe() {
+  const [page, setPage] = useState(1);
+  const limit = 35;
   // Afficher tous les Devis
-  const { data: devisData, isLoading, error } = useAllDevis();
+  const {
+    data: devisData,
+    isLoading,
+    error,
+  } = usePagignationDevis(page, limit);
 
   const navigate = useNavigate();
 
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedBoutique, setSelectedBoutique] = useState(null);
   // Fonction de Recherche dans la barre de recherche
-  const filterDevis = devisData
+  const filterDevis = devisData?.results?.data
     ?.filter((fac) => {
       const search = searchTerm.toLowerCase();
       return (
@@ -132,6 +138,34 @@ export default function DevisListe() {
               </Button>
             </div>
           )}
+          <div className='d-flex gap-3 justify-content-end align-items-center mt-4'>
+            <Button
+              disabled={page === 1}
+              color='secondary'
+              onClick={() => setPage((p) => p - 1)}
+            >
+              Précédent
+            </Button>
+
+            <p className='text-center mt-2'>
+              {' '}
+              Page{' '}
+              <span className='text-primary'>
+                {devisData?.results?.page}
+              </span>{' '}
+              sur{' '}
+              <span className='text-info'>
+                {devisData?.results?.totalPages}
+              </span>
+            </p>
+            <Button
+              disabled={page === devisData?.results?.totalPages}
+              color='primary'
+              onClick={() => setPage((p) => p + 1)}
+            >
+              Suivant
+            </Button>
+          </div>
           {filterDevis?.length > 0 &&
             filterDevis?.map((dev, index) => (
               <div

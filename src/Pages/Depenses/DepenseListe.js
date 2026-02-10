@@ -5,14 +5,24 @@ import FormModal from '../components/FormModal';
 import LoadingSpiner from '../components/LoadingSpiner';
 import { capitalizeWords, formatPrice } from '../components/capitalizeFunction';
 import { deleteButton } from '../components/AlerteModal';
-import { useAllDepenses, useDeleteDepense } from '../../Api/queriesDepense';
+import {
+  useAllDepenses,
+  useDeleteDepense,
+  usePagignationDepenses,
+} from '../../Api/queriesDepense';
 import DepenseForm from './DepenseForm';
 import { connectedUserBoutique } from '../Authentication/userInfos';
 
 export default function DepenseListe() {
+  const [page, setPage] = useState(1);
+  const limit = 30;
   const [form_modal, setForm_modal] = useState(false);
   const [formModalTitle, setFormModalTitle] = useState('Ajouter une Dépense');
-  const { data: depenseData, isLoading, error } = useAllDepenses();
+  const {
+    data: depenseData,
+    isLoading,
+    error,
+  } = usePagignationDepenses(page, limit);
   const { mutate: deleteDepense, isDeleting } = useDeleteDepense();
   const [depenseToUpdate, setDepenseToUpdate] = useState(null);
   const [todayExpense, setTodayExpense] = useState(false);
@@ -22,7 +32,7 @@ export default function DepenseListe() {
   const [searchTerm, setSearchTerm] = useState('');
 
   // Fonction pour la recherche
-  const filterSearchDepense = depenseData
+  const filterSearchDepense = depenseData?.results?.data
     ?.filter((depense) => {
       const search = searchTerm.toLowerCase();
 
@@ -152,31 +162,60 @@ export default function DepenseListe() {
                       </div>
                       <div className='d-flex gap-2 justify-content-center align-items-center my-3 '>
                         <h6>Boutique </h6>
-                       <select
-                  value={selectedBoutique ?? ''}
-                  onChange={(e) => {
-                    const v = e.target.value;
-                    setSelectedBoutique(v === '' ? null : Number(v));
-                  }}
-                  className='form-select border border-dark rounded '
-                  style={{ cursor: 'pointer' }}
-                >
-                  <option value=''>Toutes</option>
-                  <option value={connectedUserBoutique ?? 0}>
-                    {connectedUserBoutique ?? 0} - Ma Boutique
-                  </option>
-                  {connectedUserBoutique === 1 ? (
-                    <option value='2'>Boutique - 2</option>
-                  ) : connectedUserBoutique === 2 ? (
-                    <option value='1'>Boutique - 1</option>
-                  ) : (
-                    <optgroup label='autres'>
-                      <option value='1'>Boutique - 1</option>
-                      <option value='2'>Boutique - 2</option>
-                    </optgroup>
-                  )}
-                </select>
+                        <select
+                          value={selectedBoutique ?? ''}
+                          onChange={(e) => {
+                            const v = e.target.value;
+                            setSelectedBoutique(v === '' ? null : Number(v));
+                          }}
+                          className='form-select border border-dark rounded '
+                          style={{ cursor: 'pointer' }}
+                        >
+                          <option value=''>Toutes</option>
+                          <option value={connectedUserBoutique ?? 0}>
+                            {connectedUserBoutique ?? 0} - Ma Boutique
+                          </option>
+                          {connectedUserBoutique === 1 ? (
+                            <option value='2'>Boutique - 2</option>
+                          ) : connectedUserBoutique === 2 ? (
+                            <option value='1'>Boutique - 1</option>
+                          ) : (
+                            <optgroup label='autres'>
+                              <option value='1'>Boutique - 1</option>
+                              <option value='2'>Boutique - 2</option>
+                            </optgroup>
+                          )}
+                        </select>
                       </div>
+                    </div>
+
+                    <div className='d-flex gap-3 justify-content-end align-items-center mt-4'>
+                      <Button
+                        disabled={page === 1}
+                        color='secondary'
+                        onClick={() => setPage((p) => p - 1)}
+                      >
+                        Précédent
+                      </Button>
+
+                      <p className='text-center mt-2'>
+                        {' '}
+                        Page{' '}
+                        <span className='text-primary'>
+                          {depenseData?.results?.page}
+                        </span>{' '}
+                        sur{' '}
+                        <span className='text-info'>
+                          {depenseData?.results?.totalPages}
+                        </span>
+                      </p>
+                      <Button
+                        disabled={page === depenseData?.results?.totalPages}
+                        color='primary'
+                        onClick={() => setPage((p) => p + 1)}
+                      >
+                        Suivant
+                      </Button>
                     </div>
                     {error && (
                       <div className='text-danger text-center'>

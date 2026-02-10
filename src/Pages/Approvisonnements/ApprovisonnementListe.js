@@ -185,7 +185,7 @@ export default function ApprovisonnementListe() {
                         Approvisonnement Total:{' '}
                         <span className='text-warning'>
                           {' '}
-                          {approvisonnementData?.length}{' '}
+                          {approvisonnementData?.results?.data?.length}{' '}
                         </span>
                       </p>
                     </Col>
@@ -233,7 +233,7 @@ export default function ApprovisonnementListe() {
                     </p>
                     <Button
                       disabled={
-                        page === approvisonnementData?.results.totalPages
+                        page === approvisonnementData?.results?.totalPages
                       }
                       color='primary'
                       onClick={() => setPage((p) => p + 1)}

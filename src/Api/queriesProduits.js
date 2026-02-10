@@ -51,6 +51,20 @@ export const useAllProduitWithStockInferieure = () =>
     queryFn: () =>
       api.get('/produits/getAllProduitWithStockFinish').then((res) => res.data),
   });
+export const usePagignationProduitWithStockInferieure = (
+  page = 1,
+  limit = 35
+) =>
+  useQuery({
+    queryKey: ['produits', page, limit],
+    queryFn: () =>
+      api
+        .get('/produits/getPagignationProduitWithStockFinish', {
+          params: { page, limit },
+        })
+        .then((res) => res.data),
+    keepPreviousData: true,
+  });
 
 // Obtenir un Produit
 export const useOneProduit = (id) =>

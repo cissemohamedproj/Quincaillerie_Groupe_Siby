@@ -14,6 +14,7 @@ import {
 } from '../../Api/queriesCommande';
 import { useNavigate } from 'react-router-dom';
 import { connectedUserBoutique } from '../Authentication/userInfos';
+import { useAllPaiements } from '../../Api/queriesPaiement';
 
 export default function CommandeListe() {
   const [page, setPage] = useState(1);
@@ -26,6 +27,7 @@ export default function CommandeListe() {
   } = usePagignationCommandes(page, limit);
   const { mutate: deleteCommandeAndRestorStock } = useDeleteCommande();
 
+  const { data: paiements } = useAllPaiements();
   // State de chargement pour la suppression
   const [isDeleting, setIsDeletting] = useState(false);
 
@@ -351,7 +353,7 @@ export default function CommandeListe() {
                         </span>
                       </p>
                       <Button
-                        disabled={page === commandes?.commandes.totalPages}
+                        disabled={page === commandes?.commandes?.totalPages}
                         color='primary'
                         onClick={() => setPage((p) => p + 1)}
                       >
@@ -378,23 +380,13 @@ export default function CommandeListe() {
                               <th scope='col' style={{ width: '50px' }}>
                                 Date de Commande
                               </th>
-                              <th className='sort' data-sort='fullName'>
-                                Client
-                              </th>
-                              <th className='sort' data-sort='phoneNumber'>
-                                Contact
-                              </th>
+                              <th>Client</th>
+                              <th>Contact</th>
 
-                              <th className='sort' data-sort='items'>
-                                Article
-                              </th>
-                              <th className='sort' data-sort='statut'>
-                                Statut
-                              </th>
+                              <th>Article</th>
+                              <th>Statut</th>
 
-                              <th className='sort' data-sort='action'>
-                                Action
-                              </th>
+                              <th>Action</th>
                             </tr>
                           </thead>
                           <tbody className='list form-check-all text-center'>
@@ -402,7 +394,7 @@ export default function CommandeListe() {
                               filterCommandes?.map((comm) => (
                                 <tr key={comm?._id} className='text-center'>
                                   <th scope='row'>
-                                    {commandes?.factures?.data?.some(
+                                    {paiements?.some(
                                       (fact) =>
                                         fact?.commande?._id === comm?._id
                                     ) ? (

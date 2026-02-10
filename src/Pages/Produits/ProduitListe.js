@@ -154,7 +154,7 @@ export default function ProduitListe() {
                           </span>
                         </p>
                         <Button
-                          disabled={page === produits?.items.totalPages}
+                          disabled={page === produits?.items?.totalPages}
                           color='primary'
                           onClick={() => setPage((p) => p + 1)}
                         >

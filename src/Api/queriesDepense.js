@@ -26,6 +26,17 @@ export const useAllDepenses = () =>
     queryFn: () => api.get('/depenses/getAllDepense').then((res) => res.data),
   });
 
+// Lire toutes les depenses with pagignation
+export const usePagignationDepenses = (page = 1, limit = 30) =>
+  useQuery({
+    queryKey: ['depenses', page, limit],
+    queryFn: () =>
+      api
+        .get('/depenses/getPagignationDepense', { params: { page, limit } })
+        .then((res) => res.data),
+    keepPreviousData: true,
+  });
+
 // Obtenir une Depense
 export const useOneDepense = (id) =>
   useQuery({

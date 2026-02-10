@@ -18,7 +18,10 @@ import {
   formatPrice,
 } from '../components/capitalizeFunction';
 import { companyName } from '../CompanyInfo/CompanyInfo';
-import { useAllCommandes } from '../../Api/queriesCommande';
+import {
+  useAllCommandes,
+  usePagignationCommandes,
+} from '../../Api/queriesCommande';
 
 import html2pdf from 'html2pdf.js';
 import { useReactToPrint } from 'react-to-print';
@@ -49,13 +52,19 @@ const exportPDFFacture = () => {
 // ----------------------------------------
 // ----------------------------------------
 export default function FactureListe() {
-  const { data: commandes, isLoading, error } = useAllCommandes();
+  const [page, setPage] = useState(1);
+  const limit = 30;
+  const {
+    data: commandes,
+    isLoading,
+    error,
+  } = usePagignationCommandes(page, limit);
   const contentRef = useRef();
   const reactToPrintFn = useReactToPrint({ contentRef });
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedBoutique, setSelectedBoutique] = useState(null);
   // Fonction de Recherche dans la barre de recherche
-  const filterCommandesFacture = commandes?.factures
+  const filterCommandesFacture = commandes?.factures?.data
     ?.filter((fac) => {
       const search = searchTerm.toLowerCase();
       return (
@@ -75,6 +84,7 @@ export default function FactureListe() {
       }
       return true;
     });
+
   return (
     <React.Fragment>
       <div className='page-content'>
@@ -125,6 +135,35 @@ export default function FactureListe() {
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
               </div>
+            </div>
+            {isLoading && <LoadingSpiner />}
+            <div className='d-flex gap-3 justify-content-end align-items-center mt-4'>
+              <Button
+                disabled={page === 1}
+                color='secondary'
+                onClick={() => setPage((p) => p - 1)}
+              >
+                Précédent
+              </Button>
+
+              <p className='text-center mt-2'>
+                {' '}
+                Page{' '}
+                <span className='text-primary'>
+                  {commandes?.factures?.page}
+                </span>{' '}
+                sur{' '}
+                <span className='text-info'>
+                  {commandes?.factures?.totalPages}
+                </span>
+              </p>
+              <Button
+                disabled={page === commandes?.factures?.totalPages}
+                color='primary'
+                onClick={() => setPage((p) => p + 1)}
+              >
+                Suivant
+              </Button>
             </div>
           </Card>
           {error && (

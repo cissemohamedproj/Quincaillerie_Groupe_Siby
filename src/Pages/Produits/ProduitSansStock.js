@@ -21,25 +21,26 @@ import { capitalizeWords, formatPrice } from '../components/capitalizeFunction';
 import defaultImg from './../../assets/images/no_image.png';
 import { useNavigate } from 'react-router-dom';
 import {
-  useAllProduitWithStockInferieure,
   useDeleteProduit,
+  usePagignationProduitWithStockInferieure,
 } from '../../Api/queriesProduits';
 import { deleteButton } from '../components/AlerteModal';
 
 export default function ProduitSansStock() {
+  const [page, setPage] = useState(1);
+  const limit = 35;
   const {
     data: produits,
     isLoading,
     error,
-  } = useAllProduitWithStockInferieure();
-  const { mutate: deleteProduit, isLoading: isDeletingProduct } =
-    useDeleteProduit();
+  } = usePagignationProduitWithStockInferieure(page, limit);
+  const { mutate: deleteProduit } = useDeleteProduit();
 
   // Recherche State
   const [searchTerm, setSearchTerm] = useState('');
 
   // Fontion pour Rechercher
-  const filterSearchProduits = produits?.filter((prod) => {
+  const filterSearchProduits = produits?.results?.data?.filter((prod) => {
     const search = searchTerm.toLowerCase();
 
     return (
@@ -103,6 +104,34 @@ export default function ProduitSansStock() {
                         </div>
                       </Col>
                     </Row>
+                    <div className='d-flex gap-3 justify-content-end align-items-center mt-4'>
+                      <Button
+                        disabled={page === 1}
+                        color='secondary'
+                        onClick={() => setPage((p) => p - 1)}
+                      >
+                        Précédent
+                      </Button>
+
+                      <p className='text-center mt-2'>
+                        {' '}
+                        Page{' '}
+                        <span className='text-primary'>
+                          {produits?.results?.page}
+                        </span>{' '}
+                        sur{' '}
+                        <span className='text-info'>
+                          {produits?.results?.totalPages}
+                        </span>
+                      </p>
+                      <Button
+                        disabled={page === produits?.results?.totalPages}
+                        color='primary'
+                        onClick={() => setPage((p) => p + 1)}
+                      >
+                        Suivant
+                      </Button>
+                    </div>
                   </div>
                 </CardBody>
               </Card>

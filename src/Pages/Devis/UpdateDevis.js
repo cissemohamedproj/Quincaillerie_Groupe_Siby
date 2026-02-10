@@ -516,7 +516,7 @@ export default function UpdateDevis() {
                         </span>
                       </p>
                       <Button
-                        disabled={page === produitsData?.items.totalPages}
+                        disabled={page === produitsData?.items?.totalPages}
                         color='primary'
                         onClick={() => setPage((p) => p + 1)}
                       >

@@ -9,7 +9,10 @@ import {
   formatPrice,
 } from '../components/capitalizeFunction';
 import { deleteButton } from '../components/AlerteModal';
-import { useAllPaiements, useDeletePaiement } from '../../Api/queriesPaiement';
+import {
+  useDeletePaiement,
+  usePagignationPaiements,
+} from '../../Api/queriesPaiement';
 import PaiementForm from './PaiementForm';
 import ReçuPaiement from './ReçuPaiement';
 import {
@@ -18,8 +21,14 @@ import {
 } from '../Authentication/userInfos';
 
 export default function PaiementsListe() {
+  const [page, setPage] = useState(1);
+  const limit = 35;
   const [form_modal, setForm_modal] = useState(false);
-  const { data: paiementsData, isLoading, error } = useAllPaiements();
+  const {
+    data: paiementsData,
+    isLoading,
+    error,
+  } = usePagignationPaiements(page, limit);
   const { mutate: deletePaiement, isDeleting } = useDeletePaiement();
   const [paiementToUpdate, setPaiementToUpdate] = useState(null);
   const [formModalTitle, setFormModalTitle] = useState('Nouveau Paiement');
@@ -33,7 +42,7 @@ export default function PaiementsListe() {
   const [selectedBoutique, setSelectedBoutique] = useState(null);
 
   // Fonction de Rechercher
-  const filterSearchPaiement = paiementsData
+  const filterSearchPaiement = paiementsData?.results?.data
     ?.filter((paiement) => {
       const search = searchTerm.toLowerCase();
       return (
@@ -244,6 +253,34 @@ export default function PaiementsListe() {
                         </select>
                       </Col>
                     </Row>
+                    <div className='d-flex gap-3 justify-content-end align-items-center mt-4'>
+                      <Button
+                        disabled={page === 1}
+                        color='secondary'
+                        onClick={() => setPage((p) => p - 1)}
+                      >
+                        Précédent
+                      </Button>
+
+                      <p className='text-center mt-2'>
+                        {' '}
+                        Page{' '}
+                        <span className='text-primary'>
+                          {paiementsData?.results?.page}
+                        </span>{' '}
+                        sur{' '}
+                        <span className='text-info'>
+                          {paiementsData?.results?.totalPages}
+                        </span>
+                      </p>
+                      <Button
+                        disabled={page === paiementsData?.results.totalPages}
+                        color='primary'
+                        onClick={() => setPage((p) => p + 1)}
+                      >
+                        Suivant
+                      </Button>
+                    </div>
                     {error && (
                       <div className='text-danger text-center'>
                         Erreur de chargement des données
@@ -264,7 +301,7 @@ export default function PaiementsListe() {
                             className='table align-middle table-nowrap table-hover'
                             id='paiementTable'
                           >
-                            <thead className='table-light'>
+                            <thead className='table-light text-center'>
                               <tr>
                                 <th
                                   style={{ width: '50px' }}
@@ -274,7 +311,6 @@ export default function PaiementsListe() {
                                 </th>
                                 <th data-sort='client'>Client</th>
 
-                                <th data-sort='phoneNumber'>Téléphone</th>
                                 <th data-sort='adresse'>
                                   Adresse de Livraison
                                 </th>
@@ -290,7 +326,6 @@ export default function PaiementsListe() {
                                 </th>
                                 <th data-sort='motif'>Réduction</th>
 
-                                <th data-sort='methode'>Methode de Paiement</th>
                                 <th data-sort='action'>Action</th>
                               </tr>
                             </thead>
@@ -313,15 +348,16 @@ export default function PaiementsListe() {
                                         paiement?.commande?.fullName
                                       )}
                                     </td>
+
                                     <td>
+                                      <p>
+                                        {capitalizeWords(
+                                          paiement?.commande?.adresse
+                                        )}
+                                      </p>{' '}
                                       {formatPhoneNumber(
                                         paiement?.commande?.phoneNumber
                                       ) || '----'}
-                                    </td>
-                                    <td>
-                                      {capitalizeWords(
-                                        paiement?.commande?.adresse
-                                      )}
                                     </td>
 
                                     <td>
@@ -331,6 +367,9 @@ export default function PaiementsListe() {
                                     <td>
                                       {formatPrice(paiement?.totalPaye)}
                                       {' F '}
+                                      <p className='text-warning'>
+                                        {capitalizeWords(paiement?.methode)}
+                                      </p>
                                     </td>
                                     <td>
                                       {paiement?.totalAmount -
@@ -357,9 +396,6 @@ export default function PaiementsListe() {
                                     </td>
                                     <td className='text-warning'>
                                       {formatPrice(paiement?.reduction)} F
-                                    </td>
-                                    <td className='text-warning'>
-                                      {capitalizeWords(paiement?.methode)}
                                     </td>
 
                                     <td>

@@ -27,6 +27,17 @@ export const useAllPaiements = () =>
       api.get('/paiements/getAllPaiements').then((res) => res.data),
   });
 
+// Lire toutes les paiements
+export const usePagignationPaiements = (page = 1, limit = 35) =>
+  useQuery({
+    queryKey: ['paiements', page, limit],
+    queryFn: () =>
+      api
+        .get('/paiements/getPagignationPaiements', { params: { page, limit } })
+        .then((res) => res.data),
+    keepPreviousData: true,
+  });
+
 // Obtenir une Paiement
 export const useOnePaiement = (id) =>
   useQuery({
