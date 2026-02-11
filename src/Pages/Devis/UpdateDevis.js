@@ -26,25 +26,20 @@ import {
 import defaultImg from './../../assets/images/no_image.png';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useOneDevis, useUpdateDevis } from '../../Api/queriesDevis';
-import { usePagignationProduit } from '../../Api/queriesProduits';
+import { useAllProduit } from '../../Api/queriesProduits';
 import showToastAlert from '../components/ToasMessage';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import BackButton from '../components/BackButton';
 
 export default function UpdateDevis() {
-  const [page, setPage] = useState(1);
-  const limit = 35;
+  const [selectedCategory, setSelectedCategory] = useState(null);
   // State de navigation
   const navigate = useNavigate();
 
   const { id } = useParams();
   // Query pour afficher les Médicament
-  const {
-    data: produitsData,
-    isLoading,
-    error,
-  } = usePagignationProduit(page, limit);
+  const { data: produitsData, isLoading, error } = useAllProduit();
   const { mutate: updateDevis } = useUpdateDevis();
   const { data: selectedDevis } = useOneDevis(id);
 
@@ -52,15 +47,22 @@ export default function UpdateDevis() {
   const [searchTerm, setSearchTerm] = useState('');
 
   // Fontion pour Rechercher
-  const filterSearchProduits = produitsData?.items?.data?.filter((prod) => {
-    const search = searchTerm.toLowerCase();
+  const filterSearchProduits = produitsData
+    ?.filter((prod) => {
+      const search = searchTerm.toLowerCase();
 
-    return (
-      prod.name?.toLowerCase().includes(search) ||
-      prod.stock?.toString().includes(search) ||
-      prod.price?.toString().includes(search)
-    );
-  });
+      return (
+        prod.name?.toLowerCase().includes(search) ||
+        prod.stock?.toString().includes(search) ||
+        prod.price?.toString().includes(search)
+      );
+    })
+    ?.filter((item) => {
+      if (selectedCategory !== null) {
+        return item.category === selectedCategory;
+      }
+      return true;
+    });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   // Ajoute des produits dans le panier sans besoins de la base de données
@@ -474,7 +476,7 @@ export default function UpdateDevis() {
                   )}
                   <Row>
                     {/* Barre de Recherche */}
-                    <Col sm={12} className='my-4'>
+                    <Col sm={6} className='my-4'>
                       <div className='d-flex justify-content-start gap-2 p-2'>
                         {searchTerm !== '' && (
                           <Button
@@ -495,34 +497,30 @@ export default function UpdateDevis() {
                         </div>
                       </div>
                     </Col>
-                    <div className='d-flex gap-3 justify-content-end align-items-center mb-4'>
-                      <Button
-                        disabled={page === 1}
-                        color='secondary'
-                        onClick={() => setPage((p) => p - 1)}
-                      >
-                        Précédent
-                      </Button>
-
-                      <p className='text-center mt-2'>
-                        {' '}
-                        Page{' '}
-                        <span className='text-primary'>
-                          {produitsData?.items?.page}
-                        </span>{' '}
-                        sur{' '}
-                        <span className='text-info'>
-                          {produitsData?.items?.totalPages}
-                        </span>
-                      </p>
-                      <Button
-                        disabled={page === produitsData?.items?.totalPages}
-                        color='primary'
-                        onClick={() => setPage((p) => p + 1)}
-                      >
-                        Suivant
-                      </Button>
-                    </div>
+                    <Col sm={6}>
+                      <div className='d-flex flex-wrap justify-content-center align-items-center gap-5'>
+                        <div className='d-flex gap-2 justify-content-center align-items-center my-3 '>
+                          <h6>Catégorie </h6>
+                          <select
+                            value={selectedCategory ?? ''}
+                            onChange={(e) => {
+                              const v = e.target.value;
+                              setSelectedCategory(v === '' ? null : v);
+                            }}
+                            className='form-select border border-dark rounded '
+                            style={{ cursor: 'pointer' }}
+                          >
+                            <option value=''>Toutes</option>
+                            <option value='Construction'>Construction</option>
+                            <option value='Décoration'>Décoration</option>
+                            <option value='Carreaux'>Carreaux</option>
+                            <option value='Plomberie'>Plomberie</option>
+                            <option value='Métalique'>Métalique</option>
+                            <option value='Electricité'>Electricité</option>
+                          </select>
+                        </div>
+                      </div>
+                    </Col>
                     {/* --------------------------------------------------------------- */}
                     {/* --------------------------------------------------------------- */}
                     {/* --------------------------------------------------------------- */}
