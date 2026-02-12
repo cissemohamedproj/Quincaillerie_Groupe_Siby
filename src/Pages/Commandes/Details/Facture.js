@@ -57,7 +57,16 @@ export default function Facture() {
       .catch((err) => console.error('Error generating PDF:', err));
   };
 
-  const amountPaid = selectedCommande?.paiementCommande;
+  const selectedPaieCommande = selectedCommande?.paiementCommande;
+
+  const selectedCommData = selectedCommande?.commandeData;
+
+  const total =
+    selectedPaieCommande?.totalAmount || selectedCommData?.totalAmount;
+
+  const totalPaye = selectedPaieCommande?.totalPaye || 0;
+
+  const reliquat = total - totalPaye;
 
   return (
     <React.Fragment>
@@ -105,9 +114,28 @@ export default function Facture() {
               >
                 <CardBody>
                   <FactureHeader />
-                  {selectedCommande?.commandeData?.statut === 'livrée' &&
-                    amountPaid?.totalPaye ===
-                      selectedCommande?.commandeData?.totalAmount && (
+                  {selectedCommData?.statut === 'livré' && reliquat === 0 && (
+                    <div
+                      style={{
+                        position: 'absolute',
+                        left: '20px',
+                        transform: 'rotate(-45deg)',
+                        opacity: '0.5',
+                        border: '1px dashed #022f72',
+                        color: ' #022f72',
+                        fontSize: ' 34px',
+                        fontweight: 'bold',
+                        width: '100%',
+                        textAlign: 'cente',
+                        display: 'flex',
+                        justifyContent: 'center',
+                      }}
+                    >
+                      <p> Payée et Livrée</p>
+                    </div>
+                  )}
+                  {selectedCommData?.statut === 'livré' &&
+                    !totalPaye < totalPaye < total && (
                       <div
                         style={{
                           position: 'absolute',
@@ -124,61 +152,95 @@ export default function Facture() {
                           justifyContent: 'center',
                         }}
                       >
-                        <p> Payé et Livré</p>
+                        <p> Livrée Non Payée</p>
                       </div>
                     )}
-                  {(selectedCommande?.commandeData?.statut === 'livrée' &&
-                    amountPaid?.totalPaye <
-                      selectedCommande?.commandeData?.totalAmount) ||
-                    (selectedCommande?.commandeData?.statut === 'livrée' &&
-                      !amountPaid && (
-                        <div
-                          style={{
-                            position: 'absolute',
-                            left: '20px',
-                            transform: 'rotate(-45deg)',
-                            opacity: '0.5',
-                            border: '1px dashed #022f72',
-                            color: ' #022f72',
-                            fontSize: ' 34px',
-                            fontweight: 'bold',
-                            width: '100%',
-                            textAlign: 'cente',
-                            display: 'flex',
-                            justifyContent: 'center',
-                          }}
-                        >
-                          <p> Livré Non Payé</p>
-                        </div>
-                      ))}
 
-                  {/* Payé Non Livré */}
-                  {(selectedCommande?.commandeData?.statut === 'en attente' &&
-                    amountPaid?.totalPaye <
-                      selectedCommande?.commandeData?.totalAmount) ||
-                    (selectedCommande?.commandeData?.statut === 'en attente' &&
-                      !amountPaid && (
-                        <div
-                          style={{
-                            position: 'absolute',
-                            left: '20px',
-                            transform: 'rotate(-45deg)',
-                            opacity: '0.5',
-                            border: '1px dashed #720202',
-                            color: ' #720202',
-                            fontSize: ' 34px',
-                            fontweight: 'bold',
-                            width: '100%',
-                            textAlign: 'cente',
-                            display: 'flex',
-                            justifyContent: 'center',
-                          }}
-                        >
-                          <p>Non Payé Non Livré</p>
-                        </div>
-                      ))}
+                  {selectedCommData?.statut === 'en attente' &&
+                    (!totalPaye || totalPaye < total) && (
+                      <div
+                        style={{
+                          position: 'absolute',
+                          left: '20px',
+                          transform: 'rotate(-45deg)',
+                          opacity: '0.5',
+                          border: '1px dashed #720202',
+                          color: ' #720202',
+                          fontSize: ' 34px',
+                          fontweight: 'bold',
+                          width: '100%',
+                          textAlign: 'cente',
+                          display: 'flex',
+                          justifyContent: 'center',
+                        }}
+                      >
+                        <p>Non Payée Non Livrée</p>
+                      </div>
+                    )}
+                  {selectedCommData?.statut === 'en attente' &&
+                    reliquat === 0 && (
+                      <div
+                        style={{
+                          position: 'absolute',
+                          left: '20px',
+                          transform: 'rotate(-45deg)',
+                          opacity: '0.5',
+                          border: '1px dashed #720202',
+                          color: ' #720202',
+                          fontSize: ' 34px',
+                          fontweight: 'bold',
+                          width: '100%',
+                          textAlign: 'cente',
+                          display: 'flex',
+                          justifyContent: 'center',
+                        }}
+                      >
+                        <p> Payée Non Livrée</p>
+                      </div>
+                    )}
+                  {selectedCommData?.statut === 'en cours' &&
+                    totalPaye === total && (
+                      <div
+                        style={{
+                          position: 'absolute',
+                          left: '20px',
+                          transform: 'rotate(-45deg)',
+                          opacity: '0.5',
+                          border: '1px dashed #720202',
+                          color: ' #720202',
+                          fontSize: ' 34px',
+                          fontweight: 'bold',
+                          width: '100%',
+                          textAlign: 'cente',
+                          display: 'flex',
+                          justifyContent: 'center',
+                        }}
+                      >
+                        <p> Payée Livraison en cours</p>
+                      </div>
+                    )}
+                  {selectedCommData?.statut === 'en cours' &&
+                    (!totalPaye || totalPaye < total) && (
+                      <div
+                        style={{
+                          position: 'absolute',
+                          left: '20px',
+                          transform: 'rotate(-45deg)',
+                          opacity: '0.5',
+                          border: '1px dashed #720202',
+                          color: ' #720202',
+                          fontSize: ' 34px',
+                          fontweight: 'bold',
+                          width: '100%',
+                          textAlign: 'cente',
+                          display: 'flex',
+                          justifyContent: 'center',
+                        }}
+                      >
+                        <p>Non Payée Livraison en cours</p>
+                      </div>
+                    )}
 
-                  {/* Payé Non Livré */}
                   <div className=' my-2 px-2 '>
                     <div className='d-flex justify-content-between align-item-center mt-2'>
                       <CardText>
@@ -201,20 +263,17 @@ export default function Facture() {
                     <div className='d-flex justify-content-between align-item-center  '>
                       <CardText>
                         <strong>Client: </strong>
-                        {capitalizeWords(
-                          selectedCommande?.commandeData?.fullName
-                        )}{' '}
+                        {capitalizeWords(selectedCommData?.fullName)}{' '}
                       </CardText>
                       <CardText>
                         <strong>Tél: </strong>
-                        {formatPhoneNumber(
-                          selectedCommande?.commandeData?.phoneNumber
-                        ) || '------'}
+                        {formatPhoneNumber(selectedCommData?.phoneNumber) ||
+                          '------'}
                       </CardText>
                     </div>
                     <CardText className='text-start'>
                       <strong>Adresse : </strong>
-                      {capitalizeWords(selectedCommande?.commandeData?.adresse)}
+                      {capitalizeWords(selectedCommData?.adresse)}
                     </CardText>
                   </div>
                   {/* Bordure Séparateur */}
@@ -232,23 +291,21 @@ export default function Facture() {
                       </thead>
 
                       <tbody>
-                        {selectedCommande?.commandeData?.items?.map(
-                          (article) => (
-                            <tr key={article?._id}>
-                              <td>{article?.quantity} </td>
-                              <td className='text-wrap'>
-                                {capitalizeWords(article?.produit?.name)}{' '}
-                              </td>
-                              <td>{formatPrice(article?.customerPrice)} F </td>
-                              <td>
-                                {formatPrice(
-                                  article?.customerPrice * article?.quantity
-                                )}
-                                {' F'}
-                              </td>
-                            </tr>
-                          )
-                        )}
+                        {selectedCommData?.items?.map((article) => (
+                          <tr key={article?._id}>
+                            <td>{article?.quantity} </td>
+                            <td className='text-wrap'>
+                              {capitalizeWords(article?.produit?.name)}{' '}
+                            </td>
+                            <td>{formatPrice(article?.customerPrice)} F </td>
+                            <td>
+                              {formatPrice(
+                                article?.customerPrice * article?.quantity
+                              )}
+                              {' F'}
+                            </td>
+                          </tr>
+                        ))}
                       </tbody>
                     </table>
                   </div>
@@ -262,42 +319,20 @@ export default function Facture() {
                         <CardText className={'text-center'}>
                           Total:{' '}
                           <strong style={{ fontSize: '14px' }}>
-                            {formatPrice(
-                              selectedCommande?.paiementCommande
-                                ? selectedCommande?.paiementCommande
-                                    ?.totalAmount
-                                : selectedCommande?.commandeData?.totalAmount
-                            )}{' '}
-                            F
+                            {formatPrice(total)} F
                           </strong>
                         </CardText>
                         <div>
                           <CardText className='text-center '>
-                            Payé:
+                            Payée:
                             <strong style={{ fontSize: '14px' }}>
-                              {' '}
-                              {selectedCommande?.paiementCommande
-                                ? formatPrice(
-                                    selectedCommande?.paiementCommande
-                                      ?.totalPaye
-                                  )
-                                : 0}{' '}
-                              F
+                              {formatPrice(totalPaye)} F
                             </strong>
                           </CardText>
                           <CardText className='text-center '>
                             Reliquat:
                             <strong style={{ fontSize: '14px' }}>
-                              {' '}
-                              {formatPrice(
-                                selectedCommande?.paiementCommande
-                                  ? selectedCommande?.paiementCommande
-                                      ?.totalAmount -
-                                      selectedCommande?.paiementCommande
-                                        ?.totalPaye
-                                  : selectedCommande?.commandeData?.totalAmount
-                              )}{' '}
-                              F
+                              {formatPrice(reliquat)} F
                             </strong>
                           </CardText>
                         </div>
@@ -306,12 +341,7 @@ export default function Facture() {
                     <p className=' mt-2 text-info'>
                       Arrêté la présente facture à la somme de:{' '}
                       <strong style={{ fontSize: '14px' }}>
-                        {formatPrice(
-                          selectedCommande?.paiementCommande
-                            ? selectedCommande?.paiementCommande?.totalAmount
-                            : selectedCommande?.commandeData?.totalAmount
-                        )}{' '}
-                        F
+                        {formatPrice(total)} F
                       </strong>
                     </p>
                     <p className='font-size-10 text-center'>
@@ -326,21 +356,13 @@ export default function Facture() {
           {/* Historique de Paiement */}
           <PaiementsHistorique
             id={id}
-            reliqua={
-              selectedCommande?.paiementCommande
-                ? selectedCommande?.paiementCommande?.totalAmount -
-                  selectedCommande?.paiementCommande?.totalPaye
-                : selectedCommande?.commandeData?.totalAmount
-            }
+            reliqua={reliquat}
             boutique={selectedCommande?.commandeData?.user?.boutique}
           />
           {/* Historique de Paiement */}
 
           {/* Historique de Lvraison */}
-          <LivraisonHistorique
-            id={id}
-            commandeItems={selectedCommande?.commandeData}
-          />
+          <LivraisonHistorique id={id} commandeItems={selectedCommData} />
           {/* Historique de Lvraison */}
         </Container>
       </div>

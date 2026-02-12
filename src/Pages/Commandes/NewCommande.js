@@ -147,6 +147,7 @@ export default function NewCommande() {
       fullName: 'non défini',
       phoneNumber: undefined || 0,
       adresse: 'non défini',
+      sheepingFee: 0,
       statut: 'livré',
       comDate: new Date().toISOString().substring(0, 10),
     },
@@ -157,6 +158,10 @@ export default function NewCommande() {
 
       phoneNumber: Yup.number().required('Ce champ est obligatoire'),
       adresse: Yup.string().required('Ce champ est obligatoire'),
+      sheepingFee: Yup.number().min(
+        0,
+        'Le frais de livraison ne peut pas être négatif'
+      ),
       statut: Yup.string().required('Ce champ est obligatoire'),
       comDate: Yup.date(),
     }),
@@ -173,6 +178,7 @@ export default function NewCommande() {
         fullName: values.fullName,
         adresse: values.adresse,
         phoneNumber: values.phoneNumber,
+        sheepingFee: values.sheepingFee,
         statut: values.statut,
         // ------------------------
         // Les ARTICLES de panier
@@ -403,6 +409,36 @@ export default function NewCommande() {
                             validation.errors.comDate ? (
                               <FormFeedback type='invalid'>
                                 {validation.errors.comDate}
+                              </FormFeedback>
+                            ) : null}
+                          </FormGroup>
+                        </Col>
+                        <Col md='6'>
+                          <FormGroup className='mb-3'>
+                            <Label htmlFor='sheepingFee'>
+                              Frais de Livraison
+                            </Label>
+                            <Input
+                              name='sheepingFee'
+                              type='number'
+                              placeholder='Frais de Livraison'
+                              className='form-control border-1 border-dark'
+                              id='sheepingFee'
+                              onChange={validation.handleChange}
+                              onBlur={validation.handleBlur}
+                              value={validation.values.sheepingFee || ''}
+                              invalid={
+                                validation.touched.sheepingFee &&
+                                validation.errors.sheepingFee
+                                  ? true
+                                  : false
+                              }
+                            />
+
+                            {validation.touched.sheepingFee &&
+                            validation.errors.sheepingFee ? (
+                              <FormFeedback type='invalid'>
+                                {validation.errors.sheepingFee}
                               </FormFeedback>
                             ) : null}
                           </FormGroup>

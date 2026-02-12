@@ -42,7 +42,6 @@ const FactureLivraison = ({
       .save()
       .catch((err) => console.error('Error generating PDF:', err));
   };
-
   return (
     <Modal
       isOpen={show_modal}
@@ -116,6 +115,15 @@ const FactureLivraison = ({
                     selectedLivraisonHistoriqueCommandes?.fullName
                   )}
                 </CardText>
+
+                {selectedLivraisonHistoriqueCommandes?.sheepingFee > 0 && (
+                  <p>
+                    <strong>Frais de livraison: </strong>{' '}
+                    {formatPrice(
+                      selectedLivraisonHistoriqueCommandes?.sheepingFee
+                    )}
+                  </p>
+                )}
               </div>
               <div
                 className='border border-1 border-dark'

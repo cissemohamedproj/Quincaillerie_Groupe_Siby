@@ -169,6 +169,7 @@ export default function UpdateCommande() {
       fullName: selectedCommande?.commandeData?.fullName || 'non défini',
       phoneNumber: selectedCommande?.commandeData?.phoneNumber || 0,
       adresse: selectedCommande?.commandeData?.adresse || 'non défini',
+      sheepingFee: selectedCommande?.commandeData?.sheepingFee || 0,
       statut: selectedCommande?.commandeData?.statut || 'livré',
       comDate:
         selectedCommande?.commandeData?.commandeDate?.substring(0, 10) ||
@@ -196,6 +197,7 @@ export default function UpdateCommande() {
         fullName: values.fullName,
         adresse: values.adresse,
         phoneNumber: values.phoneNumber,
+        sheepingFee: values.sheepingFee,
         statut: values.statut,
         // ------------------------
         // Les ARTICLES de panier
@@ -420,6 +422,36 @@ export default function UpdateCommande() {
                             validation.errors.comDate ? (
                               <FormFeedback type='invalid'>
                                 {validation.errors.comDate}
+                              </FormFeedback>
+                            ) : null}
+                          </FormGroup>
+                        </Col>
+                        <Col md='6'>
+                          <FormGroup className='mb-3'>
+                            <Label htmlFor='sheepingFee'>
+                              Frais de Livraison
+                            </Label>
+                            <Input
+                              name='sheepingFee'
+                              type='number'
+                              placeholder='Frais de Livraison'
+                              className='form-control border-1 border-dark'
+                              id='sheepingFee'
+                              onChange={validation.handleChange}
+                              onBlur={validation.handleBlur}
+                              value={validation.values.sheepingFee || ''}
+                              invalid={
+                                validation.touched.sheepingFee &&
+                                validation.errors.sheepingFee
+                                  ? true
+                                  : false
+                              }
+                            />
+
+                            {validation.touched.sheepingFee &&
+                            validation.errors.sheepingFee ? (
+                              <FormFeedback type='invalid'>
+                                {validation.errors.sheepingFee}
                               </FormFeedback>
                             ) : null}
                           </FormGroup>
