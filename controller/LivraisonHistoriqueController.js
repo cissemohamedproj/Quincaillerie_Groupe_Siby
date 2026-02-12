@@ -59,7 +59,7 @@ exports.getAllLivraisonHistorique = async (req, res) => {
     // Si la quantité totale livrée correspond à la quantité totale commandée, on met à jour le statut de la commande
     // et on Sauvegarde le Statut de la commande par "livré"
     if (totalCommandeQuantity === totalLivraisonQuantity) {
-      commande.commandeData.statut = 'livré';
+      commande.statut = 'livré';
       await commande.save();
     }
 
