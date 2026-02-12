@@ -316,12 +316,23 @@ export default function Facture() {
                         className='d-flex
                   justify-content-between align-item-center'
                       >
-                        <CardText className={'text-center'}>
-                          Total:{' '}
-                          <strong style={{ fontSize: '14px' }}>
-                            {formatPrice(total)} F
-                          </strong>
-                        </CardText>
+                        <div>
+                          <CardText className={'text-center'}>
+                            Montant Total:{' '}
+                            <strong style={{ fontSize: '14px' }}>
+                              {formatPrice(total)} F
+                            </strong>
+                          </CardText>
+                          {selectedCommData?.sheepingFee > 0 && (
+                            <CardText className={'text-center'}>
+                              Frais de Livraison:{' '}
+                              <strong style={{ fontSize: '14px' }}>
+                                {formatPrice(selectedCommData?.sheepingFee)} F
+                              </strong>
+                            </CardText>
+                          )}
+                        </div>
+
                         <div>
                           <CardText className='text-center '>
                             Payée:
