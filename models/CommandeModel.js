@@ -54,6 +54,10 @@ const commandeSchema = new mongoose.Schema(
       default: 'cash',
       required: true,
     },
+    sheepingFee: {
+      type: Number,
+      default: 0,
+    },
     commandeDate: {
       type: Date,
       default: Date.now,
