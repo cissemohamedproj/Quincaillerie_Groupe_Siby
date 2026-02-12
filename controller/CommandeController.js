@@ -84,8 +84,15 @@ exports.updateCommande = async (req, res) => {
 
   try {
     const { commandeId } = req.params;
-    const { fullName, phoneNumber, adresse, statut, items, totalAmount } =
-      req.body;
+    const {
+      fullName,
+      phoneNumber,
+      adresse,
+      statut,
+      items,
+      totalAmount,
+      ...resData
+    } = req.body;
 
     const existingCommande = await Commande.findById(commandeId).session(
       session
@@ -140,14 +147,27 @@ exports.updateCommande = async (req, res) => {
     }
 
     // Étape 4 : Mettre à jour la commande
-    existingCommande.fullName = fullName || 'non défini';
-    existingCommande.phoneNumber = phoneNumber;
-    existingCommande.adresse = adresse;
-    existingCommande.statut = statut;
-    existingCommande.items = newItems;
-    existingCommande.totalAmount = totalAmount;
+    // existingCommande.fullName = fullName || 'non défini';
+    // existingCommande.phoneNumber = phoneNumber;
+    // existingCommande.adresse = adresse;
+    // existingCommande.statut = statut;
+    // existingCommande.items = newItems;
+    // existingCommande.totalAmount = totalAmount;
 
-    await existingCommande.save({ session });
+    await Commande.findByIdAndUpdate(
+      commandeId,
+      {
+        fullName: fullName || 'non défini',
+        phoneNumber,
+        adresse,
+        statut,
+        items: newItems,
+        totalAmount,
+        ...resData,
+      },
+      { new: true, session }
+    );
+    // await existingCommande.save({ session });
 
     await session.commitTransaction();
     session.endSession();
