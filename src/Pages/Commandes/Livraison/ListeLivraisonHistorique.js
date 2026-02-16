@@ -77,8 +77,8 @@ export default function LivraisonHistorique({ id, commandeItems }) {
   const productDelivredResult = commandeItems?.items?.map((commItem) => {
     const livraisonFilter = livraisonHistoriqueData?.filter((livItem) =>
       livItem?.produit
-        ? livItem?.produit === commItem?.produit.name
-        : livItem?.produitID?.name === commItem?.produit.name
+        ? livItem?.produit === commItem?.produit?.name
+        : livItem?.produitID?.name === commItem?.produit?.name
     );
     const totalQuantityDelivry = livraisonFilter?.reduce(
       (current, value) => (current += value.quantity),
@@ -194,31 +194,33 @@ export default function LivraisonHistorique({ id, commandeItems }) {
                       </Col>
                     </Row>
                     <div className='col-sm-auto'>
-                      {productDelivredResult?.map((item) => (
-                        <div
-                          key={item?.produit._id}
-                          className='text-center my-2'
-                        >
-                          <p className='font-size-13'>
-                            <strong className='text-muted'>
-                              {capitalizeWords(item?.produit.name)}:{' '}
-                            </strong>
-                            <span className='text-success'>
-                              {' '}
-                              {formatPrice(item?.quantityLivree)}
-                            </span>{' '}
-                            Livré sur{' '}
-                            <span className='text-warning'>
-                              {' '}
-                              {formatPrice(item?.quantityCommandee)}
-                            </span>{' '}
-                            Commandé
-                            <span className='text-danger mx-3'>
-                              Restant: {formatPrice(item?.quantityRestante)}
-                            </span>{' '}
-                          </p>
-                        </div>
-                      ))}
+                      {productDelivredResult?.map((item) => {
+                        return (
+                          <div
+                            key={item?.produit?._id}
+                            className='text-center my-2'
+                          >
+                            <p className='font-size-13'>
+                              <strong className='text-muted'>
+                                {capitalizeWords(item?.produit?.name)}:{' '}
+                              </strong>
+                              <span className='text-success'>
+                                {' '}
+                                {formatPrice(item?.quantityLivree)}
+                              </span>{' '}
+                              Livré sur{' '}
+                              <span className='text-warning'>
+                                {' '}
+                                {formatPrice(item?.quantityCommandee)}
+                              </span>{' '}
+                              Commandé
+                              <span className='text-danger mx-3'>
+                                Restant: {formatPrice(item?.quantityRestante)}
+                              </span>{' '}
+                            </p>
+                          </div>
+                        );
+                      })}
                     </div>
                     {error && (
                       <div className='text-danger text-center'>
@@ -301,10 +303,10 @@ export default function LivraisonHistorique({ id, commandeItems }) {
                                           {categoryType === 'Carreaux' && ' m²'}
                                           {categoryType === 'Carreaux' && (
                                             <p>
-                                              = ({result.cartons} cartons){' '}
-                                              {result.piecesSupplementaires >
+                                              = ({result?.cartons} cartons){' '}
+                                              {result?.piecesSupplementaires >
                                                 0 &&
-                                                ` et ${result.piecesSupplementaires} pièces`}
+                                                ` et ${result?.piecesSupplementaires} pièces`}
                                             </p>
                                           )}
                                         </td>

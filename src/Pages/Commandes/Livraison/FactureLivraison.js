@@ -145,30 +145,30 @@ const FactureLivraison = ({
                   <tbody className='list'>
                     {delivredProducts?.map((item) => {
                       const converQuantityLivree = calculerConversionM2(
-                        item.quantityLivree,
-                        item.produit.surfaceParPiece,
-                        item.produit.piecesParCarton
+                        item?.quantityLivree,
+                        item?.produit?.surfaceParPiece,
+                        item?.produit?.piecesParCarton
                       );
 
                       const converResult = calculerCarreaux(
-                        item.quantityCommandee,
-                        item.produit
+                        item?.quantityCommandee,
+                        item?.produit
                       );
                       const productCategory =
-                        item.produit.category === 'Carreaux';
+                        item?.produit?.category === 'Carreaux';
                       return (
-                        <tr key={item?.produit._id}>
-                          <td>{capitalizeWords(item?.produit.name)}</td>
+                        <tr key={item?.produit?._id}>
+                          <td>{capitalizeWords(item?.produit?.name)}</td>
                           <td>
                             {formatPrice(item?.quantityCommandee)}
                             {productCategory && ' ²m'}
-                            {productCategory && converResult.cartons > 0 && (
+                            {productCategory && converResult?.cartons > 0 && (
                               <p>
-                                = {productCategory && converResult.cartons}{' '}
+                                = {productCategory && converResult?.cartons}{' '}
                                 cartons{' '}
-                                {converResult.piecesSupplementaires > 0 &&
+                                {converResult?.piecesSupplementaires > 0 &&
                                   ' et ' +
-                                    converResult.piecesSupplementaires +
+                                    converResult?.piecesSupplementaires +
                                     ' pièces'}
                               </p>
                             )}
@@ -177,13 +177,13 @@ const FactureLivraison = ({
                             {formatPrice(item?.quantityLivree)}
                             {productCategory && ' ²m'}
                             {productCategory &&
-                              converQuantityLivree.cartons > 0 && (
+                              converQuantityLivree?.cartons > 0 && (
                                 <p>
-                                  = {converQuantityLivree.cartons} cartons
-                                  {converQuantityLivree.piecesSupplementaires >
+                                  = {converQuantityLivree?.cartons} cartons
+                                  {converQuantityLivree?.piecesSupplementaires >
                                     0 &&
                                     ' et ' +
-                                      converQuantityLivree.piecesSupplementaires +
+                                      converQuantityLivree?.piecesSupplementaires +
                                       ' pièces'}
                                 </p>
                               )}

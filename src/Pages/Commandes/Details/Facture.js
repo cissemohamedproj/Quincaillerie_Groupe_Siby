@@ -61,8 +61,9 @@ export default function Facture() {
 
   const selectedCommData = selectedCommande?.commandeData;
 
-  const total =
+  const subTotal =
     selectedPaieCommande?.totalAmount || selectedCommData?.totalAmount;
+  const total = subTotal + selectedCommData?.sheepingFee;
 
   const totalPaye = selectedPaieCommande?.totalPaye || 0;
 
@@ -254,7 +255,7 @@ export default function Facture() {
                       <CardText>
                         <strong> Date:</strong>{' '}
                         {new Date(
-                          selectedCommande?.commandeData?.createdAt
+                          selectedCommande?.commandeData?.commandeDate
                         ).toLocaleDateString()}
                       </CardText>
                     </div>
@@ -317,20 +318,28 @@ export default function Facture() {
                   justify-content-between align-item-center'
                       >
                         <div>
+                          {selectedCommData?.sheepingFee > 0 && (
+                            <div>
+                              <CardText className={'text-center'}>
+                                Montant Facture:{' '}
+                                <strong style={{ fontSize: '14px' }}>
+                                  {formatPrice(subTotal)} F
+                                </strong>
+                              </CardText>
+                              <CardText className={'text-center'}>
+                                Frais de Livraison:{' '}
+                                <strong style={{ fontSize: '14px' }}>
+                                  {formatPrice(selectedCommData?.sheepingFee)} F
+                                </strong>
+                              </CardText>
+                            </div>
+                          )}
                           <CardText className={'text-center'}>
-                            Montant Total:{' '}
+                            Total:{' '}
                             <strong style={{ fontSize: '14px' }}>
                               {formatPrice(total)} F
                             </strong>
                           </CardText>
-                          {selectedCommData?.sheepingFee > 0 && (
-                            <CardText className={'text-center'}>
-                              Frais de Livraison:{' '}
-                              <strong style={{ fontSize: '14px' }}>
-                                {formatPrice(selectedCommData?.sheepingFee)} F
-                              </strong>
-                            </CardText>
-                          )}
                         </div>
 
                         <div>
@@ -352,7 +361,6 @@ export default function Facture() {
                     <p className=' mt-2 text-info'>
                       Arrêté la présente facture à la somme de:{' '}
                       <strong style={{ fontSize: '14px' }}>
-                        {/* {formatPrice(total + selectedCommData?.sheepingFee)} F */}
                         {formatPrice(total)} F
                       </strong>
                     </p>
