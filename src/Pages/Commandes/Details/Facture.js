@@ -135,7 +135,7 @@ export default function Facture() {
                     </div>
                   )}
                   {selectedCommData?.statut === 'livré' &&
-                    !totalPaye < totalPaye < total && (
+                    totalPaye < total && (
                       <div
                         style={{
                           position: 'absolute',
@@ -352,6 +352,7 @@ export default function Facture() {
                     <p className=' mt-2 text-info'>
                       Arrêté la présente facture à la somme de:{' '}
                       <strong style={{ fontSize: '14px' }}>
+                        {/* {formatPrice(total + selectedCommData?.sheepingFee)} F */}
                         {formatPrice(total)} F
                       </strong>
                     </p>
