@@ -37,6 +37,7 @@ import Bilans from '../Pages/Bilans/Bilans.js';
 import TopProduits from '../Pages/Produits/TopProduits.js';
 import DevisDetails from '../Pages/Devis/DevisDetails.js';
 import ListeBon from '../Pages/Bon/ListeBon.js';
+import SelectedFacture from '../Pages/Commandes/SelectedFacture.js';
 
 const sharedRoutes = [
   // Produit de la Boutique
@@ -87,6 +88,8 @@ const authProtectedRoutes = [
 
   //  Factures Liste
   { path: '/factures', component: <FactureListe /> },
+
+  { path: '/factures/selected_facture/:id', component: <SelectedFacture /> },
 
   // Factures Détails
   { path: '/facture/:id', component: <Facture /> },

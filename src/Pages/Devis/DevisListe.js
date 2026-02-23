@@ -187,8 +187,8 @@ export default function DevisListe() {
                     </Button>
                   </div>
                 </Col>
-                {/* // ------------------------------------------- */}
 
+                {/* // ------------------------------------------- */}
                 {/* // ------------------------------------------- */}
                 <Card
                   className='d-flex justify-content-center border border-info'

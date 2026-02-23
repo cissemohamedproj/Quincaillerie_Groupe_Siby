@@ -28,6 +28,7 @@ import { useReactToPrint } from 'react-to-print';
 import FactureHeader from './Details/FactureHeader';
 import LogoFiligran from './Details/LogoFiligran';
 import { connectedUserBoutique } from '../Authentication/userInfos';
+import { useNavigate } from 'react-router-dom';
 
 // Export En PDF
 // ------------------------------------------
@@ -52,6 +53,7 @@ const exportPDFFacture = () => {
 // ----------------------------------------
 // ----------------------------------------
 export default function FactureListe() {
+  const navigate = useNavigate();
   const [page, setPage] = useState(1);
   const limit = 30;
   const {
@@ -60,7 +62,6 @@ export default function FactureListe() {
     error,
   } = usePagignationCommandes(page, limit);
   const contentRef = useRef();
-  const reactToPrintFn = useReactToPrint({ contentRef });
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedBoutique, setSelectedBoutique] = useState(null);
   // Fonction de Recherche dans la barre de recherche
@@ -84,88 +85,89 @@ export default function FactureListe() {
       }
       return true;
     });
-
   return (
     <React.Fragment>
       <div className='page-content'>
         <Container fluid>
           <Breadcrumbs title='Commande' breadcrumbItem='Liste de Factures' />
-          <Card className='p-4'>
-            <div className=' d-flex align-items-center gap-3 mb-4 justify-content-between flex-wrap'>
-              {/* Selectonner la boutique */}
-              <div className='mb-3'>
-                <h6>Filtrer par Boutique </h6>
-                <select
-                  value={selectedBoutique ?? ''}
-                  onChange={(e) => {
-                    const v = e.target.value;
-                    setSelectedBoutique(v === '' ? null : Number(v));
-                  }}
-                  className='form-select border border-dark rounded '
-                  style={{ cursor: 'pointer' }}
-                >
-                  <option value=''>Toutes</option>
-                  <option value={connectedUserBoutique ?? 0}>
-                    {connectedUserBoutique ?? 0} - Ma Boutique
-                  </option>
-                  {connectedUserBoutique === 1 ? (
-                    <option value='2'>Boutique - 2</option>
-                  ) : connectedUserBoutique === 2 ? (
-                    <option value='1'>Boutique - 1</option>
-                  ) : (
-                    <optgroup label='autres'>
-                      <option value='1'>Boutique - 1</option>
+
+          {!isLoading && !error && (
+            <Card className='p-4'>
+              <div className=' d-flex align-items-center gap-3 mb-4 justify-content-between flex-wrap'>
+                {/* Selectonner la boutique */}
+                <div className='mb-3'>
+                  <h6>Filtrer par Boutique </h6>
+                  <select
+                    value={selectedBoutique ?? ''}
+                    onChange={(e) => {
+                      const v = e.target.value;
+                      setSelectedBoutique(v === '' ? null : Number(v));
+                    }}
+                    className='form-select border border-dark rounded '
+                    style={{ cursor: 'pointer' }}
+                  >
+                    <option value=''>Toutes</option>
+                    <option value={connectedUserBoutique ?? 0}>
+                      {connectedUserBoutique ?? 0} - Ma Boutique
+                    </option>
+                    {connectedUserBoutique === 1 ? (
                       <option value='2'>Boutique - 2</option>
-                    </optgroup>
+                    ) : connectedUserBoutique === 2 ? (
+                      <option value='1'>Boutique - 1</option>
+                    ) : (
+                      <optgroup label='autres'>
+                        <option value='1'>Boutique - 1</option>
+                        <option value='2'>Boutique - 2</option>
+                      </optgroup>
+                    )}
+                  </select>
+                </div>
+
+                <div className='search-box me-2 d-flex align-items-center gap-2'>
+                  {searchTerm !== '' && (
+                    <Button color='danger' onClick={() => setSearchTerm('')}>
+                      <i className='fas fa-window-close'></i>
+                    </Button>
                   )}
-                </select>
+                  <input
+                    type='text'
+                    className='form-control search border border-dark rounded'
+                    placeholder='Rechercher...'
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                  />
+                </div>
               </div>
+              <div className='d-flex gap-3 justify-content-end align-items-center mt-4'>
+                <Button
+                  disabled={page === 1}
+                  color='secondary'
+                  onClick={() => setPage((p) => p - 1)}
+                >
+                  Précédent
+                </Button>
 
-              <div className='search-box me-2 d-flex align-items-center gap-2'>
-                {searchTerm !== '' && (
-                  <Button color='danger' onClick={() => setSearchTerm('')}>
-                    <i className='fas fa-window-close'></i>
-                  </Button>
-                )}
-                <input
-                  type='text'
-                  className='form-control search border border-dark rounded'
-                  placeholder='Rechercher...'
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
+                <p className='text-center mt-2'>
+                  {' '}
+                  Page{' '}
+                  <span className='text-primary'>
+                    {commandes?.factures?.page}
+                  </span>{' '}
+                  sur{' '}
+                  <span className='text-info'>
+                    {commandes?.factures?.totalPages}
+                  </span>
+                </p>
+                <Button
+                  disabled={page === commandes?.factures?.totalPages}
+                  color='primary'
+                  onClick={() => setPage((p) => p + 1)}
+                >
+                  Suivant
+                </Button>
               </div>
-            </div>
-            {isLoading && <LoadingSpiner />}
-            <div className='d-flex gap-3 justify-content-end align-items-center mt-4'>
-              <Button
-                disabled={page === 1}
-                color='secondary'
-                onClick={() => setPage((p) => p - 1)}
-              >
-                Précédent
-              </Button>
-
-              <p className='text-center mt-2'>
-                {' '}
-                Page{' '}
-                <span className='text-primary'>
-                  {commandes?.factures?.page}
-                </span>{' '}
-                sur{' '}
-                <span className='text-info'>
-                  {commandes?.factures?.totalPages}
-                </span>
-              </p>
-              <Button
-                disabled={page === commandes?.factures?.totalPages}
-                color='primary'
-                onClick={() => setPage((p) => p + 1)}
-              >
-                Suivant
-              </Button>
-            </div>
-          </Card>
+            </Card>
+          )}
           {error && (
             <div className='text-danger text-center'>
               Erreur de chargement des données
@@ -186,21 +188,17 @@ export default function FactureListe() {
                 className='d-flex flex-column justify-content-center'
               >
                 {/* // Bouton */}
-                <Col className='col-sm-auto'>
-                  <div className='d-flex gap-4 mb-3  justify-content-center align-items-center'>
+                <Col className='col-sm-auto mb-3'>
+                  <div className='d-flex gap-4  justify-content-center align-items-center'>
                     <Button
                       color='info'
                       className='add-btn'
                       id='create-btn'
-                      onClick={reactToPrintFn}
+                      onClick={() =>
+                        navigate(`/factures/selected_facture/${comm?._id}`)
+                      }
                     >
-                      <i className='fas fa-print align-center me-1'></i>{' '}
-                      Imprimer
-                    </Button>
-
-                    <Button color='danger' onClick={exportPDFFacture}>
-                      <i className='fas fa-paper-plane  me-1 '></i>
-                      Télécharger en PDF
+                      <i className='bx bx-show align-center me-1'></i> Détails
                     </Button>
                   </div>
                 </Col>
@@ -224,7 +222,9 @@ export default function FactureListe() {
                         <div className='d-flex justify-content-between align-item-center mt-2'>
                           <CardText>
                             <strong>Facture N°: </strong>{' '}
-                            <span className='text-danger'>{index + 1} </span>
+                            <span className='text-danger'>
+                              {comm.commande?.commandeId}{' '}
+                            </span>
                           </CardText>
                           <CardText>
                             <strong> Date:</strong>{' '}
@@ -293,13 +293,41 @@ export default function FactureListe() {
                             className='d-flex
                   justify-content-between align-item-center'
                           >
-                            <CardText className={'text-center'}>
-                              Total:{' '}
-                              <strong style={{ fontSize: '14px' }}>
-                                {' '}
-                                {formatPrice(comm?.totalAmount)} F{' '}
-                              </strong>{' '}
-                            </CardText>
+                            <div>
+                              <CardText className={'text-center'}>
+                                Montant:{' '}
+                                <strong style={{ fontSize: '14px' }}>
+                                  {' '}
+                                  {formatPrice(comm?.totalAmount)} F{' '}
+                                </strong>{' '}
+                              </CardText>
+                              {comm?.commande?.sheepingFee > 0 && (
+                                <div>
+                                  {' '}
+                                  <CardText className={'text-center'}>
+                                    Livraison:{' '}
+                                    <strong style={{ fontSize: '14px' }}>
+                                      {' '}
+                                      {formatPrice(
+                                        comm?.commande?.sheepingFee
+                                      )}{' '}
+                                      F{' '}
+                                    </strong>{' '}
+                                  </CardText>
+                                  <CardText className={'text-center'}>
+                                    Total:{' '}
+                                    <strong style={{ fontSize: '14px' }}>
+                                      {' '}
+                                      {formatPrice(
+                                        comm?.totalAmount +
+                                          comm?.commande?.sheepingFee
+                                      )}{' '}
+                                      F{' '}
+                                    </strong>{' '}
+                                  </CardText>{' '}
+                                </div>
+                              )}
+                            </div>
                             <div>
                               <CardText className='text-center '>
                                 Payé:
@@ -324,7 +352,13 @@ export default function FactureListe() {
                         <p className=' mt-2 text-info'>
                           Arrêté la présente facture à la somme de:{' '}
                           <strong style={{ fontSize: '14px' }}>
-                            {formatPrice(comm?.totalAmount)} F
+                            {comm?.commande?.sheepingFee > 0
+                              ? formatPrice(
+                                  comm?.totalAmount +
+                                    comm?.commande?.sheepingFee
+                                )
+                              : formatPrice(comm?.totalAmount)}{' '}
+                            F
                           </strong>
                         </p>
                         <p className='font-size-10 text-center'>
